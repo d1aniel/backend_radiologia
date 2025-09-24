@@ -1,7 +1,11 @@
+// models/patient.ts
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../database/db";
+import sequelize from "../database/connection"; // si exportas default desde connection
+// import { sequelize } from "../database/db"; // alternativa si usas named export
 
-// Interfaz para tipar en TypeScript
+// Importa el modelo Study para declarar las asociaciones
+import { Study } from "./Studie";
+
 export interface PatientI {
   id?: number;
   nombre: string;
@@ -9,13 +13,12 @@ export interface PatientI {
   tpdocumento: string;
   sexo?: string;
   documento: number;
-  telefono: number;
+  telefono: number | string;
   eps: string;
   correo: string;
   status: "ACTIVATE" | "INACTIVE";
 }
 
-// Clase que representa la tabla
 export class Patient extends Model<PatientI> implements PatientI {
   public id!: number;
   public nombre!: string;
@@ -23,13 +26,12 @@ export class Patient extends Model<PatientI> implements PatientI {
   public tpdocumento!: string;
   public sexo?: string;
   public documento!: number;
-  public telefono!: number;
+  public telefono!: number | string;
   public eps!: string;
   public correo!: string;
   public status!: "ACTIVATE" | "INACTIVE";
 }
 
-// Inicializamos el modelo
 Patient.init(
   {
     id: {
@@ -101,3 +103,13 @@ Patient.init(
     timestamps: false,
   }
 );
+
+Patient.hasMany(Study, {
+  foreignKey: "patient_id",
+  sourceKey: "id",
+});
+
+Study.belongsTo(Patient, {
+  foreignKey: "patient_id",
+  targetKey: "id",
+});

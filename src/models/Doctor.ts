@@ -1,6 +1,6 @@
 // src/models/doctor.ts
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../database/db";
+import  sequelize  from "../database/connection";
 
 // Interface base (coincide con tu front)
 export interface DoctorI {

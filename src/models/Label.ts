@@ -1,6 +1,6 @@
 // src/models/label.ts
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '../database/db';
+import  sequelize  from '../database/connection';
 
 export interface LabelI {
   id?: number;

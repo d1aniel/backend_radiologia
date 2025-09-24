@@ -1,6 +1,6 @@
 // src/models/team.ts
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../database/db";
+import  sequelize  from "../database/connection";
 
 export type EstadoTeam = "DISPONIBLE" | "MANTENIMIENTO" | "OCUPADO";
 

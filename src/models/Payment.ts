@@ -1,6 +1,6 @@
 // src/models/payment.ts
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../database/db";
+import  sequelize  from "../database/connection";
 
 export type MetodoPago = "EFECTIVO" | "TARJETA" | "TRANSFERENCIA" | "OTRO";
 export type EstadoPago = "PAID" | "PENDING" | "VOID";

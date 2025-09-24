@@ -1,16 +1,15 @@
 // src/models/report.ts
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../database/db";
-
+import sequelize from "../database/connection";
 export type InformeEstado = "BORRADOR" | "FIRMADO";
 
 export interface ReportI {
-  id?: number;             // PK autoincremental
-  estudioId: number;       // FK único (1:1 con Study)
-  estado: InformeEstado;   // BORRADOR | FIRMADO
-  cuerpo: string;          // texto largo/markdown
-  medicoId: number;        // quien firma
-  fechaCreacion?: Date;    // default NOW
+  id?: number;             
+  estudioId: number;       
+  estado: InformeEstado;   
+  cuerpo: string;          
+  medicoId: number;        
+  fechaCreacion?: Date;   
 }
 
 // Para creación (id y fechaCreacion son generados)
