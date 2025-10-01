@@ -1,30 +1,30 @@
-// src/models/Study.ts
-import { DataTypes, Model } from "sequelize";
-import  sequelize  from "../database/connection";
-import { Patient } from "./Pacient";
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../database/connection";
 
 export type Prioridad = "BAJA" | "MEDIA" | "ALTA" | "URGENTE";
 
 export interface StudyI {
   id?: number;
-  pacienteId: number;
+  patient_id: number;   // FK -> patients.id (snake_case para seguir el profe)
   modalidad: string;
   equipo: string;
-  tecnologo?: string;
-  medico?: string;
+  tecnologo?: string | null;
+  medico?: string | null;
   fechaHora: Date;
   prioridad: Prioridad;
   motivo: string;
   status?: "ACTIVE" | "INACTIVE";
 }
 
-export class Study extends Model {
+type StudyCreationAttrs = Optional<StudyI, "id" | "status">;
+
+export class Study extends Model<StudyI, StudyCreationAttrs> implements StudyI {
   public id!: number;
-  public pacienteId!: number;
+  public patient_id!: number;
   public modalidad!: string;
   public equipo!: string;
-  public tecnologo?: string;
-  public medico?: string;
+  public tecnologo?: string | null;
+  public medico?: string | null;
   public fechaHora!: Date;
   public prioridad!: Prioridad;
   public motivo!: string;
@@ -33,7 +33,12 @@ export class Study extends Model {
 
 Study.init(
   {
-  
+    // columna FK: patient_id (debe coincidir exactamente con foreignKey en relaciones)
+    patient_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
     modalidad: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -75,15 +80,3 @@ Study.init(
     timestamps: false,
   }
 );
-
-// Relaciones
-Patient.hasMany(Study, {
-  foreignKey: "pacienteId",
-  sourceKey: "id",
-});
-
-Study.belongsTo(Patient, {
-  foreignKey: "pacienteId",
-  targetKey: "id",
-});
-

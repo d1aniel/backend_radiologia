@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express, { Application } from "express";
 import morgan from "morgan";
 import sequelize from "../database/connection";
+import "../models/associations";
 import { Routes } from "../routes/index";
 var cors = require("cors"); // install en node y types
 

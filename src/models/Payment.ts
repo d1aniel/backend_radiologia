@@ -76,7 +76,7 @@ Payment.init(
     sequelize,
     modelName: "Payment",
     tableName: "payments",
-    timestamps: false, // igual al modelo Client del profe
+    timestamps: false, 
     indexes: [
       { fields: ["paciente_id"] },
       { fields: ["estudio_id"] },

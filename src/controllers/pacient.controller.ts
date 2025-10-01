@@ -36,7 +36,7 @@ export class PatientController {
   public async createPatient(req: Request, res: Response) {
     try {
       const body = req.body as PatientI;
-      const patient = await Patient.create(body);
+      const patient = await Patient.create(body as any);
       res.status(201).json(patient);
     } catch (error) {
       res.status(500).json({ error: "Error creating patient" });

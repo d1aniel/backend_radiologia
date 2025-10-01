@@ -1,11 +1,10 @@
-// models/patient.ts
 import { DataTypes, Model } from "sequelize";
-import sequelize from "../database/connection"; // si exportas default desde connection
-// import { sequelize } from "../database/db"; // alternativa si usas named export
+import sequelize from "../database/connection";
+import { Study } from "./Studie"; // asegúrate que el archivo se llame Study.ts (o ajusta)
 
-// Importa el modelo Study para declarar las asociaciones
-import { Study } from "./Studie";
-
+/**
+ * Modelo Patient (estilo profe)
+ */
 export interface PatientI {
   id?: number;
   nombre: string;
@@ -13,20 +12,20 @@ export interface PatientI {
   tpdocumento: string;
   sexo?: string;
   documento: number;
-  telefono: number | string;
+  telefono: string | number;
   eps: string;
   correo: string;
   status: "ACTIVATE" | "INACTIVE";
 }
 
-export class Patient extends Model<PatientI> implements PatientI {
+export class Patient extends Model implements PatientI {
   public id!: number;
   public nombre!: string;
   public apellido!: string;
   public tpdocumento!: string;
   public sexo?: string;
   public documento!: number;
-  public telefono!: number | string;
+  public telefono!: string | number;
   public eps!: string;
   public correo!: string;
   public status!: "ACTIVATE" | "INACTIVE";
@@ -34,11 +33,6 @@ export class Patient extends Model<PatientI> implements PatientI {
 
 Patient.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -104,6 +98,13 @@ Patient.init(
   }
 );
 
+/**
+ * Relaciones (igual estilo profe)
+ * - Un paciente tiene muchos estudios
+ * - Un estudio pertenece a un paciente
+ *
+ * IMPORTANTE: importa Patient y Study desde models/index.ts para evitar undefined
+ */
 Patient.hasMany(Study, {
   foreignKey: "patient_id",
   sourceKey: "id",

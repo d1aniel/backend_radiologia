@@ -9,7 +9,7 @@ export interface QuoteI {
   modalidad: string;
   equipo: string;
   tecnologo: string;
-  fechaHora: string; // ISO string
+  fechaHora: string; 
   motivo: string;
   estado: EstadoCita;
 }
