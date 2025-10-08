@@ -98,19 +98,4 @@ Patient.init(
   }
 );
 
-/**
- * Relaciones (igual estilo profe)
- * - Un paciente tiene muchos estudios
- * - Un estudio pertenece a un paciente
- *
- * IMPORTANTE: importa Patient y Study desde models/index.ts para evitar undefined
- */
-Patient.hasMany(Study, {
-  foreignKey: "patient_id",
-  sourceKey: "id",
-});
 
-Study.belongsTo(Patient, {
-  foreignKey: "patient_id",
-  targetKey: "id",
-});

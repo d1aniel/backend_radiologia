@@ -4,12 +4,20 @@ import { Image } from "./Image";
 import { Label } from "./Label";
 import { StudyLabel } from "./StudieLabel";
 
+import { Doctor } from "./Doctor";
+import { Technologist } from "./Technologist";
+import { Team } from "./Team";
+import { Modalidad } from "./Modalitie";
+import { Quote } from "./Quote";
+import { Report } from "./Report";
+import { Payment } from "./Payment";
+
+/* === relaciones ya existentes === */
 // Paciente -> Estudios
 Patient.hasMany(Study, {
   foreignKey: "patient_id",
   sourceKey: "id",
 });
-
 Study.belongsTo(Patient, {
   foreignKey: "patient_id",
   targetKey: "id",
@@ -21,24 +29,160 @@ Study.hasMany(Image, {
   foreignKey: "estudioId",
   as: "imagenes",
 });
-
 Image.belongsTo(Study, {
   targetKey: "id",
   foreignKey: "estudioId",
   as: "estudio",
 });
 
-// Estudios <-> Labels (relación muchos a muchos)
+// Estudios <-> Labels (muchos a muchos)
 Study.belongsToMany(Label, {
   through: StudyLabel,
   foreignKey: "study_id",
   otherKey: "label_id",
   as: "labels",
 });
-
 Label.belongsToMany(Study, {
   through: StudyLabel,
   foreignKey: "label_id",
   otherKey: "study_id",
   as: "studies",
+});
+
+// Doctor -> Estudios
+Doctor.hasMany(Study, {
+  foreignKey: "medico_id",
+  sourceKey: "id",
+});
+Study.belongsTo(Doctor, {
+  foreignKey: "medico_id",
+  targetKey: "id",
+  as: "doctor",
+});
+
+// Doctor -> Reportes
+Doctor.hasMany(Report, {
+  foreignKey: "medico_id",
+  sourceKey: "id",
+});
+Report.belongsTo(Doctor, {
+  foreignKey: "medico_id",
+  targetKey: "id",
+  as: "firmante",
+});
+
+// Technologist -> Estudios
+Technologist.hasMany(Study, {
+  foreignKey: "technologist_id",
+  sourceKey: "id",
+});
+Study.belongsTo(Technologist, {
+  foreignKey: "technologist_id",
+  targetKey: "id",
+  as: "technologist_user",
+});
+
+// Modalidad -> Estudios
+Modalidad.hasMany(Study, {
+  foreignKey: "modality_id",
+  sourceKey: "id",
+});
+Study.belongsTo(Modalidad, {
+  foreignKey: "modality_id",
+  targetKey: "id",
+  as: "modalidad_obj",
+});
+
+// Team -> Estudios
+Team.hasMany(Study, {
+  foreignKey: "team_id",
+  sourceKey: "id",
+});
+Study.belongsTo(Team, {
+  foreignKey: "team_id",
+  targetKey: "id",
+  as: "team_obj",
+});
+
+// Modalidad -> Team
+Modalidad.hasMany(Team, {
+  foreignKey: "modality_id",
+  sourceKey: "id",
+});
+Team.belongsTo(Modalidad, {
+  foreignKey: "modality_id",
+  targetKey: "id",
+  as: "modalidad_obj",
+});
+
+// Quote -> Estudios
+Quote.hasMany(Study, {
+  foreignKey: "quote_id",
+  sourceKey: "id",
+});
+Study.belongsTo(Quote, {
+  foreignKey: "quote_id",
+  targetKey: "id",
+  as: "cita_obj",
+});
+
+// Patient -> Quote
+Patient.hasMany(Quote, {
+  foreignKey: "patient_id",
+  sourceKey: "id",
+});
+Quote.belongsTo(Patient, {
+  foreignKey: "patient_id",
+  targetKey: "id",
+  as: "paciente_obj",
+});
+
+// Payments -> Patient
+Patient.hasMany(Payment, {
+  foreignKey: "patient_id",
+  sourceKey: "id",
+});
+Payment.belongsTo(Patient, {
+  foreignKey: "patient_id",
+  targetKey: "id",
+});
+
+// Payments -> Quote
+Quote.hasMany(Payment, {
+  foreignKey: "quote_id",
+  sourceKey: "id",
+});
+Payment.belongsTo(Quote, {
+  foreignKey: "quote_id",
+  targetKey: "id",
+});
+
+/* === asociaciones N:N === */
+
+// Doctor <-> Modalidad
+Doctor.belongsToMany(Modalidad, {
+  through: "doctor_modalidades",
+  foreignKey: "doctor_id",
+  otherKey: "modality_id",
+  as: "modalidades",
+});
+Modalidad.belongsToMany(Doctor, {
+  through: "doctor_modalidades",
+  foreignKey: "modality_id",
+  otherKey: "doctor_id",
+  as: "doctores",
+});
+
+// Technologist <-> Team
+Technologist.belongsToMany(Team, {
+  through: "technologist_teams",
+  foreignKey: "technologist_id",
+  otherKey: "team_id",
+  as: "teams",
+});
+Team.belongsToMany(Technologist, {
+  through: "technologist_teams",
+  foreignKey: "team_id",
+  otherKey: "technologist_id",
+  as: "technologists",
 });

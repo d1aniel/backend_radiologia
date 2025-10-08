@@ -88,8 +88,5 @@ Report.init(
   }
 );
 
-// Sugerencia de asociaciones (opcional, activa si tienes los modelos):
-// Report.belongsTo(Study, { foreignKey: "estudioId", as: "estudio" });
-// Report.belongsTo(Doctor, { foreignKey: "medicoId", as: "medico" });
 
 export default Report;
