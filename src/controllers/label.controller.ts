@@ -1,8 +1,9 @@
+
 import { Request, Response } from "express";
 import { Label, LabelI } from "../models/Label";
 
 export class LabelController {
-  // Obtener todas las etiquetas activas
+  // Get all labels with status "ACTIVATE"
   public async getAllLabels(req: Request, res: Response) {
     try {
       const labels: LabelI[] = await Label.findAll({
@@ -10,11 +11,12 @@ export class LabelController {
       });
       res.status(200).json({ labels });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching labels" });
     }
   }
 
-  // Obtener una etiqueta por ID
+  // Get a label by ID
   public async getLabelById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -23,58 +25,100 @@ export class LabelController {
       });
 
       if (label) {
-        res.status(200).json(label);
+        // mantener el patrón: envolver el resultado
+        res.status(200).json({ label });
       } else {
         res.status(404).json({ error: "Label not found or inactive" });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching label" });
     }
   }
 
-  // Crear una nueva etiqueta
+  // Create a new label
   public async createLabel(req: Request, res: Response) {
+    const { nombre, descripcion, status } = req.body;
+
     try {
-      const body = req.body as LabelI;
-      const label = await Label.create(body as any);
-      res.status(201).json(label);
-    } catch (error) {
-      res.status(500).json({ error: "Error creating label" });
+      const body: LabelI = {
+        nombre,
+        descripcion,
+        status, // si quieres forzarlo a 'ACTIVATE' siempre, puedes ignorar status y setearlo aquí
+      };
+
+      const newLabel = await Label.create({ ...body } as any);
+      res.status(201).json(newLabel);
+    } catch (error: any) {
+      console.error(error);
+      // devolver mensaje de validación si viene de sequelize
+      res.status(400).json({ error: error.message || "Error creating label" });
     }
   }
 
-  // Actualizar una etiqueta por ID
+  // Update a label by ID
   public async updateLabel(req: Request, res: Response) {
+    const { id: pk } = req.params;
+    const { nombre, descripcion, status } = req.body;
+
     try {
-      const { id: pk } = req.params;
-      const body = req.body as Partial<LabelI>;
+      const body: Partial<LabelI> = {
+        nombre,
+        descripcion,
+        status,
+      };
 
-      const label = await Label.findByPk(pk);
-      if (!label) {
-        return res.status(404).json({ error: "Label not found" });
+      const labelExist = await Label.findOne({
+        where: { id: pk, status: "ACTIVATE" }, // solo actualizar si está activa (mismo patrón que paciente)
+      });
+
+      if (labelExist) {
+        await labelExist.update(body, { where: { id: pk } });
+        res.status(200).json(labelExist);
+      } else {
+        res.status(404).json({ error: "Label not found or inactive" });
       }
-
-      await label.update(body);
-      res.status(200).json(label);
-    } catch (error) {
-      res.status(500).json({ error: "Error updating label" });
+    } catch (error: any) {
+      console.error(error);
+      res.status(400).json({ error: error.message });
     }
   }
 
-  // Eliminar (cambiar status a INACTIVE)
+  // Delete label physically (destroy)
   public async deleteLabel(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
-      const label = await Label.findByPk(pk);
+      const { id } = req.params;
+      const labelToDelete = await Label.findByPk(id);
 
-      if (!label) {
-        return res.status(404).json({ error: "Label not found" });
+      if (labelToDelete) {
+        await labelToDelete.destroy();
+        res.status(200).json({ message: "Label deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Label not found" });
       }
-
-      await label.update({ status: "INACTIVE" });
-      res.status(200).json({ message: "Label set to INACTIVE" });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error deleting label" });
+    }
+  }
+
+  // Delete label logically (mark status = INACTIVE)
+  public async deleteLabelAdv(req: Request, res: Response) {
+    try {
+      const { id: pk } = req.params;
+      const labelToUpdate = await Label.findOne({
+        where: { id: pk, status: "ACTIVATE" },
+      });
+
+      if (labelToUpdate) {
+        await labelToUpdate.update({ status: "INACTIVE" });
+        res.status(200).json({ message: "Label marked as inactive" });
+      } else {
+        res.status(404).json({ error: "Label not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error marking label as inactive" });
     }
   }
 }

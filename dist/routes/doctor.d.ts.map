@@ -1,0 +1,1 @@
+{"version":3,"file":"doctor.d.ts","sourceRoot":"","sources":["../../src/routes/doctor.ts"],"names":[],"mappings":"AAAA,OAAO,EAAU,WAAW,EAAE,MAAM,SAAS,CAAC;AAC9C,OAAO,EAAE,gBAAgB,EAAE,MAAM,kCAAkC,CAAC;AAEpE,qBAAa,YAAY;IAChB,gBAAgB,EAAE,gBAAgB,CAA0B;IAE5D,MAAM,CAAC,GAAG,EAAE,WAAW,GAAG,IAAI;CAgBtC"}

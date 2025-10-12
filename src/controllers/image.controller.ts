@@ -1,11 +1,11 @@
+// src/controllers/image.controller.ts
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import Image from "../models/Image"; // tu modelo Image
-import { ImageI } from "../models/Image";
+import Image, { ImageI } from "../models/Image";
+import { Study } from "../models/Studie"; // ajusta si tu archivo/model se llama distinto
 
 export class ImageController {
-  // Listar imágenes (si pasas ?estudioId=1 filtra por estudio)
   public async getAllImages(req: Request, res: Response) {
     try {
       const { estudioId } = req.query;
@@ -20,7 +20,6 @@ export class ImageController {
     }
   }
 
-  // Obtener imagen por id
   public async getImageById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -38,19 +37,13 @@ export class ImageController {
   }
 
   /**
-   * Crear imagen (espera multipart/form-data con campo 'file' y otros campos en body)
-   * Campos esperados en body:
-   * - estudioId (number)
-   * - tipo (DICOM|JPG|PNG|Serie)
-   * - serie (opcional)
-   * - orden (opcional)
-   *
-   * El middleware multer debe haber procesado el archivo y dejarlo en req.file
+   * createImage espera multipart/form-data con campo 'file' (multer)
+   * body: estudioId, tipo, serie?, orden?
    */
   public async createImage(req: Request, res: Response) {
     try {
-      // multer coloca info en req.file
-      const file = (req as any).file;
+      // Tipamos req.file correctamente
+      const file = (req as Request & { file?: Express.Multer.File }).file;
 
       if (!file) {
         return res.status(400).json({ error: "No file uploaded" });
@@ -58,11 +51,26 @@ export class ImageController {
 
       const { estudioId, tipo, serie, orden } = req.body;
 
-      // construimos los campos
+      // validación básica: estudioId presente y existe en BD
+      if (!estudioId) {
+        return res.status(400).json({ error: "estudioId is required" });
+      }
+
+      const study = await Study.findByPk(Number(estudioId));
+      if (!study) {
+        // si no existe el estudio, borra el archivo subido (evitar basura) y responde error
+        try {
+          if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        } catch (e) {
+          console.warn("Could not remove uploaded file after missing study:", e);
+        }
+        return res.status(400).json({ error: "Study (estudio) not found" });
+      }
+
       const newImgPayload: Partial<ImageI> = {
         estudioId: Number(estudioId),
         tipo: (tipo as any) ?? "DICOM",
-        url: file.path, // ruta en disco. En produccion podrías guardar URL externa.
+        url: file.path,
         nombreArchivo: file.originalname,
         tamanoBytes: file.size,
         serie: serie ?? null,
@@ -77,7 +85,6 @@ export class ImageController {
     }
   }
 
-  // Actualizar metadatos de la imagen (no reemplaza archivo). Si quieres reemplazar archivo, se puede expandir.
   public async updateImage(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -88,7 +95,6 @@ export class ImageController {
         return res.status(404).json({ error: "Image not found" });
       }
 
-      // No permitimos actualizar id/fechaCarga desde body por seguridad
       const allowed: Partial<ImageI> = {
         estudioId: body.estudioId ?? image.estudioId,
         tipo: body.tipo ?? image.tipo,
@@ -96,7 +102,7 @@ export class ImageController {
         tamanoBytes: body.tamanoBytes ?? image.tamanoBytes,
         serie: body.serie ?? image.serie,
         orden: body.orden ?? image.orden,
-        url: body.url ?? image.url, // si se pasa una nueva url explícita permitimos, pero para reemplazo de archivo preferir separado
+        url: body.url ?? image.url,
       };
 
       await image.update(allowed as any);
@@ -107,11 +113,6 @@ export class ImageController {
     }
   }
 
-  /**
-   * Eliminar imagen:
-   * - elimina el archivo físico (si existe en disco y la ruta es local)
-   * - elimina el registro en DB
-   */
   public async deleteImage(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -121,7 +122,6 @@ export class ImageController {
         return res.status(404).json({ error: "Image not found" });
       }
 
-      // intentar borrar archivo si es ruta local
       const filePath = image.url;
       if (filePath && !filePath.startsWith("http")) {
         const absolute = path.isAbsolute(filePath)
@@ -134,7 +134,6 @@ export class ImageController {
           }
         } catch (fsErr) {
           console.warn("Could not delete file:", absolute, fsErr);
-          // no bloqueamos la eliminación del registro por un error en el FS
         }
       }
 

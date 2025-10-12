@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-import { Payment, PaymentI } from "../models/Payment";
+import { Payment, PaymentI } from "../models/Payment"; // ajusta la ruta si tu archivo es payment.ts
 
 export class PaymentController {
   // Obtener todos los pagos (excepto los VOID)
@@ -9,6 +9,7 @@ export class PaymentController {
       const payments: PaymentI[] = await Payment.findAll({
         where: { estado: { [Op.ne]: "VOID" } },
       });
+      // Mantengo el mismo patrón del profe (envolver en objeto)
       res.status(200).json({ payments });
     } catch (error) {
       console.error(error);
@@ -25,7 +26,8 @@ export class PaymentController {
       });
 
       if (payment) {
-        res.status(200).json(payment);
+        // envolvemos el resultado en un objeto, como en patient
+        res.status(200).json({ payment });
       } else {
         res.status(404).json({ error: "Payment not found or voided" });
       }
@@ -37,61 +39,94 @@ export class PaymentController {
 
   // Crear un nuevo pago
   public async createPayment(req: Request, res: Response) {
-    try {
-      const body = req.body as PaymentI;
+    const { pacienteId, estudioId, monto, metodo, fecha, estado } = req.body;
 
-      // Garantizar valores mínimos / defaults
-      const payload: Partial<PaymentI> = {
-        pacienteId: body.pacienteId,
-        estudioId: body.estudioId ?? null,
-        monto: body.monto,
-        metodo: body.metodo ?? "EFECTIVO",
-        fecha: body.fecha, // esperar YYYY-MM-DD desde el frontend
-        estado: body.estado ?? "PAID",
+    try {
+      // construimos el body de forma explícita (igual que patient)
+      const body: PaymentI = {
+        pacienteId,
+        estudioId: estudioId ?? null,
+        monto,
+        metodo: metodo ?? "EFECTIVO",
+        fecha, // se espera YYYY-MM-DD desde frontend
+        estado: estado ?? "PAID",
       };
 
-      const payment = await Payment.create(payload as any);
-      res.status(201).json(payment);
-    } catch (error) {
+      const newPayment = await Payment.create({ ...body } as any);
+      res.status(201).json(newPayment);
+    } catch (error: any) {
       console.error(error);
-      res.status(500).json({ error: "Error creating payment" });
+      // devuelvo 400 con mensaje de validación si viene del ORM
+      res.status(400).json({ error: error.message ?? "Error creating payment" });
     }
   }
 
-  // Actualizar un pago por ID
+  // Actualizar un pago (solo si NO está VOID)
   public async updatePayment(req: Request, res: Response) {
+    const { id: pk } = req.params;
+    const { pacienteId, estudioId, monto, metodo, fecha, estado } = req.body;
+
     try {
-      const { id: pk } = req.params;
-      const body = req.body as Partial<PaymentI>;
+      const body: Partial<PaymentI> = {
+        pacienteId,
+        estudioId,
+        monto,
+        metodo,
+        fecha,
+        estado,
+      };
 
-      const payment = await Payment.findByPk(pk);
-      if (!payment) {
-        return res.status(404).json({ error: "Payment not found" });
+      const paymentExist = await Payment.findOne({
+        where: { id: pk, estado: { [Op.ne]: "VOID" } },
+      });
+
+      if (paymentExist) {
+        await paymentExist.update(body);
+        res.status(200).json(paymentExist);
+      } else {
+        res.status(404).json({ error: "Payment not found or voided" });
       }
-
-      await payment.update(body);
-      res.status(200).json(payment);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      res.status(500).json({ error: "Error updating payment" });
+      res.status(400).json({ error: error.message ?? "Error updating payment" });
     }
   }
 
-  // "Eliminar" un pago -> marcar como VOID
+  // Delete físicamente (destroy)
   public async deletePayment(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
-      const payment = await Payment.findByPk(pk);
+      const { id } = req.params;
+      const paymentToDelete = await Payment.findByPk(id);
 
-      if (!payment) {
-        return res.status(404).json({ error: "Payment not found" });
+      if (paymentToDelete) {
+        await paymentToDelete.destroy();
+        res.status(200).json({ message: "Payment deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Payment not found" });
       }
-
-      await payment.update({ estado: "VOID" });
-      res.status(200).json({ message: "Payment set to VOID" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error deleting payment" });
+    }
+  }
+
+  // Delete lógico -> marcar estado = VOID
+  public async deletePaymentAdv(req: Request, res: Response) {
+    try {
+      const { id: pk } = req.params;
+      const paymentToUpdate = await Payment.findOne({
+        where: { id: pk, estado: { [Op.ne]: "VOID" } },
+      });
+
+      if (paymentToUpdate) {
+        await paymentToUpdate.update({ estado: "VOID" });
+        res.status(200).json({ message: "Payment marked as VOID" });
+      } else {
+        res.status(404).json({ error: "Payment not found or already voided" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error marking payment as VOID" });
     }
   }
 }

@@ -1,0 +1,21 @@
+src/faker/populate_data.ts(18,7): error TS2339: Property 'setLocale' does not exist on type 'Faker'.
+src/faker/populate_data.ts(78,38): error TS2559: Type '"3#########"' has no properties in common with type '{ style?: "human" | "national" | "international"; }'.
+src/faker/populate_data.ts(105,38): error TS2559: Type '"+57 3#########"' has no properties in common with type '{ style?: "human" | "national" | "international"; }'.
+src/faker/populate_data.ts(106,28): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/faker/populate_data.ts(125,38): error TS2559: Type '"3#########"' has no properties in common with type '{ style?: "human" | "national" | "international"; }'.
+src/faker/populate_data.ts(126,28): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/faker/populate_data.ts(142,17): error TS18048: 'preset' is possibly 'undefined'.
+src/faker/populate_data.ts(143,22): error TS18048: 'preset' is possibly 'undefined'.
+src/faker/populate_data.ts(161,7): error TS2379: Argument of type '{ nombre: string; modalidad: string; ubicacion: string; estado: "DISPONIBLE" | "MANTENIMIENTO" | "OCUPADO"; observaciones: string | undefined; }' is not assignable to parameter of type 'Optional<TeamI, NullishPropertiesOf<TeamI>>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ nombre: string; modalidad: string; ubicacion: string; estado: "DISPONIBLE" | "MANTENIMIENTO" | "OCUPADO"; observaciones: string | undefined; }' is not assignable to type 'Partial<Pick<TeamI, NullishPropertiesOf<TeamI>>>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'observaciones' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/faker/populate_data.ts(257,11): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/faker/populate_data.ts(281,11): error TS2322: Type 'bigint' is not assignable to type 'number'.
+src/faker/populate_data.ts(281,51): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+src/faker/populate_data.ts(281,68): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+src/faker/populate_data.ts(349,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

@@ -1,18 +1,19 @@
+
+// src/controllers/study.controller.ts
 import { Request, Response } from "express";
 import { Study, StudyI } from "../models/Studie";
 import { Patient } from "../models/Pacient";
 import { Label } from "../models/Label";
 
 export class StudyController {
-  // Obtener todos los estudios activos (incluye paciente, labels, imagenes)
+  // Obtener todos los estudios activos (incluye paciente, labels)
   public async getAllStudies(req: Request, res: Response) {
     try {
       const studies = await Study.findAll({
-        where: { status: "ACTIVE" },
+        where: { status: "ACTIVATE" },
         include: [
-          { model: Patient, as: "patient" },   // si en tu modelo la alias es distinto ajústalo
-          { model: Label, as: "labels" },      // incluir etiquetas asociadas
-          // { model: Image, as: 'imagenes' }   // si quieres imágenes inclúyelo
+          { model: Patient, as: "patient" },
+          { model: Label, as: "labels" },
         ],
       });
 
@@ -28,16 +29,16 @@ export class StudyController {
     try {
       const { id: pk } = req.params;
       const study = await Study.findOne({
-        where: { id: pk, status: "ACTIVE" },
+        where: { id: pk, status: "ACTIVATE" },
         include: [
           { model: Patient, as: "patient" },
           { model: Label, as: "labels" },
-          // { model: Image, as: 'imagenes' }
         ],
       });
 
       if (study) {
-        res.status(200).json(study);
+        // envuelto en objeto por consistencia con PatientController
+        res.status(200).json({ study });
       } else {
         res.status(404).json({ error: "Study not found or inactive" });
       }
@@ -54,39 +55,35 @@ export class StudyController {
     try {
       const body = req.body as Partial<StudyI> & { labels?: number[] };
 
-      // Validación básica: patient_id debe existir y paciente activo
+      // Validación básica: patient_id debe existir y paciente ACTIVATE
       if (!body.patient_id) {
         return res.status(400).json({ error: "patient_id is required" });
       }
 
-      const patient = await Patient.findOne({ where: { id: body.patient_id, status: "ACTIVE" } });
+      const patient = await Patient.findOne({ where: { id: body.patient_id, status: "ACTIVATE" } });
       if (!patient) {
         return res.status(400).json({ error: "Patient not found or inactive" });
       }
 
-      // crea el estudio (si fechaHora viene como string ISO, Sequelize lo acepta o conviértelo)
+      // Preparar payload del estudio
       const studyPayload: StudyI = {
         patient_id: body.patient_id,
-        modalidad: body.modalidad!,
-        equipo: body.equipo!,
-        tecnologo: body.tecnologo ?? null,
-        medico: body.medico ?? null,
+        modalidad: body.modalidad ?? "",
+        equipo: body.equipo ?? "",
+        tecnologo: body.tecnologo ?? "",
+        medico: body.medico ?? "",
         fechaHora: body.fechaHora ? new Date(body.fechaHora) : new Date(),
         prioridad: (body.prioridad ?? "MEDIA") as StudyI["prioridad"],
-        motivo: body.motivo!,
+        motivo: body.motivo ?? "",
         status: "ACTIVE",
       };
 
-      const newStudy = await Study.create(studyPayload);
+      const newStudy = await Study.create(studyPayload as any);
 
       // Si vienen etiquetas (labels) asociarlas (reemplaza las existentes)
       if (Array.isArray(body.labels) && body.labels.length > 0) {
-        // labels deben existir: opcional validación
         const existingLabels = await Label.findAll({ where: { id: body.labels } });
         const existingIds = existingLabels.map(l => l.id);
-
-        // Usa el alias de la asociación: en tu modelo definiste as: 'labels'
-        // si se usa 'etiquetas' ajusta a esa clave
         await (newStudy as any).$set("labels", existingIds);
       }
 
@@ -98,7 +95,7 @@ export class StudyController {
         ],
       });
 
-      res.status(201).json(created);
+      res.status(201).json({ study: created });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error creating study" });
@@ -116,21 +113,21 @@ export class StudyController {
         return res.status(404).json({ error: "Study not found" });
       }
 
-      // Si se intenta cambiar patient_id validar existencia
+      // Si se intenta cambiar patient_id validar existencia y estado ACTIVATE
       if (body.patient_id) {
-        const patient = await Patient.findOne({ where: { id: body.patient_id, status: "ACTIVE" } });
+        const patient = await Patient.findOne({ where: { id: body.patient_id, status: "ACTIVATE" } });
         if (!patient) {
           return res.status(400).json({ error: "Patient not found or inactive" });
         }
       }
 
-      // Actualizar campos permitidos
+      // Actualizar campos permitidos en la instancia
       await study.update({
         patient_id: body.patient_id ?? study.patient_id,
         modalidad: body.modalidad ?? study.modalidad,
         equipo: body.equipo ?? study.equipo,
-        tecnologo: body.tecnologo ?? study.tecnologo ?? null,
-        medico: body.medico ?? study.medico ?? null,
+        tecnologo: body.tecnologo ?? study.tecnologo ?? "",
+        medico: body.medico ?? study.medico ?? "",
         fechaHora: body.fechaHora ? new Date(body.fechaHora) : study.fechaHora,
         prioridad: (body.prioridad ?? study.prioridad) as StudyI["prioridad"],
         motivo: body.motivo ?? study.motivo,
@@ -150,14 +147,14 @@ export class StudyController {
         ],
       });
 
-      res.status(200).json(updated);
+      res.status(200).json({ study: updated });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error updating study" });
     }
   }
 
-  // Eliminar estudio: marcar status = INACTIVE
+  // Eliminar estudio: marcar status = INACTIVE (borrado lógico)
   public async deleteStudy(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -168,7 +165,7 @@ export class StudyController {
       }
 
       await study.update({ status: "INACTIVE" });
-      res.status(200).json({ message: "Study set to INACTIVE" });
+      res.status(200).json({ message: "Study marked as INACTIVE" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error deleting study" });

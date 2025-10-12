@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Technologist, TechnologistI } from "../models/Technologist";
+import { Technologist, TechnologistI } from "../models/Technologist"; // ajusta ruta si la tienes distinta
 
 export class TechnologistController {
-  // Obtener todos los tecnólogos activos
+  // Get all technologists with status "ACTIVE"
   public async getAllTechnologists(req: Request, res: Response) {
     try {
       const technologists: TechnologistI[] = await Technologist.findAll({
@@ -10,11 +10,12 @@ export class TechnologistController {
       });
       res.status(200).json({ technologists });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching technologists" });
     }
   }
 
-  // Obtener un tecnólogo por ID
+  // Get a technologist by ID (wrapped in an object like en el profe)
   public async getTechnologistById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -23,58 +24,103 @@ export class TechnologistController {
       });
 
       if (technologist) {
-        res.status(200).json(technologist);
+        res.status(200).json({ technologist });
       } else {
         res.status(404).json({ error: "Technologist not found or inactive" });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching technologist" });
     }
   }
 
-  // Crear un nuevo tecnólogo
+  // Create a new technologist
   public async createTechnologist(req: Request, res: Response) {
+    const { nombre, especialidad, telefono, correo, status } = req.body;
+
     try {
-      const body = req.body as TechnologistI;
-      const technologist = await Technologist.create(body as any);
-      res.status(201).json(technologist);
-    } catch (error) {
-      res.status(500).json({ error: "Error creating technologist" });
+      const body: TechnologistI = {
+        nombre,
+        especialidad,
+        telefono,
+        correo,
+        status,
+      };
+
+      const newTechnologist = await Technologist.create({ ...body } as any);
+      res.status(201).json(newTechnologist);
+    } catch (error: any) {
+      console.error(error);
+      // si viene validation error de Sequelize, devolver 400 con el mensaje
+      res.status(400).json({ error: error.message });
     }
   }
 
-  // Actualizar un tecnólogo por ID
+  // Update a technologist (only if ACTIVE)
   public async updateTechnologist(req: Request, res: Response) {
+    const { id: pk } = req.params;
+    const { nombre, especialidad, telefono, correo, status } = req.body;
+
     try {
-      const { id: pk } = req.params;
-      const body = req.body as Partial<TechnologistI>;
+      const body: TechnologistI = {
+        nombre,
+        especialidad,
+        telefono,
+        correo,
+        status,
+      };
 
-      const technologist = await Technologist.findByPk(pk);
-      if (!technologist) {
-        return res.status(404).json({ error: "Technologist not found" });
+      const technologistExist = await Technologist.findOne({
+        where: { id: pk, status: "ACTIVE" },
+      });
+
+      if (technologistExist) {
+        await technologistExist.update(body, { where: { id: pk } });
+        res.status(200).json(technologistExist);
+      } else {
+        res.status(404).json({ error: "Technologist not found or inactive" });
       }
-
-      await technologist.update(body);
-      res.status(200).json(technologist);
-    } catch (error) {
-      res.status(500).json({ error: "Error updating technologist" });
+    } catch (error: any) {
+      console.error(error);
+      res.status(400).json({ error: error.message });
     }
   }
 
-  // Eliminar (cambiar status a INACTIVE)
+  // Delete a technologist physically (destroy)
   public async deleteTechnologist(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
-      const technologist = await Technologist.findByPk(pk);
+      const { id } = req.params;
+      const technologistToDelete = await Technologist.findByPk(id);
 
-      if (!technologist) {
-        return res.status(404).json({ error: "Technologist not found" });
+      if (technologistToDelete) {
+        await technologistToDelete.destroy();
+        res.status(200).json({ message: "Technologist deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Technologist not found" });
       }
-
-      await technologist.update({ status: "INACTIVE" });
-      res.status(200).json({ message: "Technologist set to INACTIVE" });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error deleting technologist" });
+    }
+  }
+
+  // Delete a technologist logically (mark status = INACTIVE)
+  public async deleteTechnologistAdv(req: Request, res: Response) {
+    try {
+      const { id: pk } = req.params;
+      const technologistToUpdate = await Technologist.findOne({
+        where: { id: pk, status: "ACTIVE" },
+      });
+
+      if (technologistToUpdate) {
+        await technologistToUpdate.update({ status: "INACTIVE" });
+        res.status(200).json({ message: "Technologist marked as inactive" });
+      } else {
+        res.status(404).json({ error: "Technologist not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error marking technologist as inactive" });
     }
   }
 }

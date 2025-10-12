@@ -1,5 +1,6 @@
+// src/controllers/modalidad.controller.ts
 import { Request, Response } from "express";
-import { Modalidad, ModalidadI } from "../models/Modalitie";
+import { Modalidad, ModalidadI } from "../models/Modalitie"; // ajusta el path/nombre si es Modalitie
 
 export class ModalidadController {
   // Obtener todas las modalidades activas
@@ -8,73 +9,110 @@ export class ModalidadController {
       const modalidades: ModalidadI[] = await Modalidad.findAll({
         where: { activa: true },
       });
-      res.status(200).json({ modalidades });
+      return res.status(200).json({ modalidades });
     } catch (error) {
-      res.status(500).json({ error: "Error fetching modalidades" });
+      console.error("[getAllModalidades] ", error);
+      return res.status(500).json({ error: "Error fetching modalidades" });
     }
   }
 
   // Obtener modalidad por ID
   public async getModalidadById(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+
       const modalidad = await Modalidad.findOne({
-        where: { id: pk, activa: true },
+        where: { id, activa: true },
       });
 
       if (modalidad) {
-        res.status(200).json(modalidad);
+        return res.status(200).json({ modalidad });
       } else {
-        res.status(404).json({ error: "Modalidad not found or inactive" });
+        return res.status(404).json({ error: "Modalidad not found or inactive" });
       }
     } catch (error) {
-      res.status(500).json({ error: "Error fetching modalidad" });
+      console.error("[getModalidadById] ", error);
+      return res.status(500).json({ error: "Error fetching modalidad" });
     }
   }
 
   // Crear nueva modalidad
   public async createModalidad(req: Request, res: Response) {
     try {
-      const body = req.body as ModalidadI;
+      const { nombre, descripcion, activa } = req.body as Partial<ModalidadI>;
+
+      // validación mínima
+      if (!nombre || String(nombre).trim().length < 2) {
+        return res.status(400).json({ error: "Nombre es obligatorio (mín 2 caracteres)" });
+      }
+      if (!descripcion || String(descripcion).trim().length < 5) {
+        return res.status(400).json({ error: "Descripción es obligatoria (mín 5 caracteres)" });
+      }
+
+      const body: Omit<ModalidadI, "id"> = {
+        nombre: String(nombre).trim(),
+        descripcion: String(descripcion).trim(),
+        activa: typeof activa === "boolean" ? activa : true
+      };
+
       const modalidad = await Modalidad.create(body as any);
-      res.status(201).json(modalidad);
-    } catch (error) {
-      res.status(500).json({ error: "Error creating modalidad" });
+      return res.status(201).json({ modalidad });
+    } catch (error: any) {
+      console.error("[createModalidad] ", error);
+      // si sequelize lanza validación, devuelvo su mensaje
+      return res.status(400).json({ error: error?.message ?? "Error creating modalidad" });
     }
   }
 
   // Actualizar modalidad por ID
   public async updateModalidad(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+
       const body = req.body as Partial<ModalidadI>;
 
-      const modalidad = await Modalidad.findByPk(pk);
-      if (!modalidad) {
-        return res.status(404).json({ error: "Modalidad not found" });
+      const modalidad = await Modalidad.findByPk(id);
+      if (!modalidad) return res.status(404).json({ error: "Modalidad not found" });
+
+      // Opcional: validar campos si vienen
+      if (body.nombre && String(body.nombre).trim().length < 2) {
+        return res.status(400).json({ error: "Nombre inválido (mín 2 caracteres)" });
+      }
+      if (body.descripcion && String(body.descripcion).trim().length < 5) {
+        return res.status(400).json({ error: "Descripción inválida (mín 5 caracteres)" });
       }
 
-      await modalidad.update(body);
-      res.status(200).json(modalidad);
+      await modalidad.update({
+        ...(body.nombre !== undefined ? { nombre: String(body.nombre).trim() } : {}),
+        ...(body.descripcion !== undefined ? { descripcion: String(body.descripcion).trim() } : {}),
+        ...(body.activa !== undefined ? { activa: Boolean(body.activa) } : {})
+      });
+
+      return res.status(200).json({ modalidad });
     } catch (error) {
-      res.status(500).json({ error: "Error updating modalidad" });
+      console.error("[updateModalidad] ", error);
+      return res.status(500).json({ error: "Error updating modalidad" });
     }
   }
 
-  // Eliminar (cambiar activa a false)
+  // Eliminar (marcar activa = false) — eliminación lógica
   public async deleteModalidad(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
-      const modalidad = await Modalidad.findByPk(pk);
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) return res.status(400).json({ error: "Invalid id" });
 
-      if (!modalidad) {
-        return res.status(404).json({ error: "Modalidad not found" });
-      }
+      const modalidad = await Modalidad.findByPk(id);
+      if (!modalidad) return res.status(404).json({ error: "Modalidad not found" });
 
+      // Marcar como inactiva
       await modalidad.update({ activa: false });
-      res.status(200).json({ message: "Modalidad set to INACTIVE" });
+
+      return res.status(200).json({ message: "Modalidad marked as inactive" });
     } catch (error) {
-      res.status(500).json({ error: "Error deleting modalidad" });
+      console.error("[deleteModalidad] ", error);
+      return res.status(500).json({ error: "Error deleting modalidad" });
     }
   }
 }

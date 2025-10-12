@@ -1,8 +1,9 @@
+// src/controllers/patient.controller.ts
 import { Request, Response } from "express";
-import { Patient, PatientI } from "../models/Pacient";
+import { Patient, PatientI } from "../models/Pacient"; // <- ajusta la ruta/nombre si tu archivo es Pacient.ts
 
 export class PatientController {
-  // Obtener todos los pacientes activos
+  // Get all patients with status "ACTIVATE"
   public async getAllPatients(req: Request, res: Response) {
     try {
       const patients: PatientI[] = await Patient.findAll({
@@ -10,11 +11,12 @@ export class PatientController {
       });
       res.status(200).json({ patients });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching patients" });
     }
   }
 
-  // Obtener un paciente por ID
+  // Get a patient by ID
   public async getPatientById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -23,58 +25,131 @@ export class PatientController {
       });
 
       if (patient) {
-        res.status(200).json(patient);
+        // el profe envuelve el resultado en un objeto
+        res.status(200).json({ patient });
       } else {
         res.status(404).json({ error: "Patient not found or inactive" });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error fetching patient" });
     }
   }
 
-  // Crear un nuevo paciente
+  // Create a new patient
   public async createPatient(req: Request, res: Response) {
+    const {
+      nombre,
+      apellido,
+      tpdocumento,
+      sexo,
+      documento,
+      telefono,
+      eps,
+      correo,
+      status,
+    } = req.body;
+
     try {
-      const body = req.body as PatientI;
-      const patient = await Patient.create(body as any);
-      res.status(201).json(patient);
-    } catch (error) {
-      res.status(500).json({ error: "Error creating patient" });
+      const body: PatientI = {
+        nombre,
+        apellido,
+        tpdocumento,
+        sexo,
+        documento,
+        telefono,
+        eps,
+        correo,
+        status,
+      };
+
+      const newPatient = await Patient.create({ ...body } as any);
+      res.status(201).json(newPatient);
+    } catch (error: any) {
+      console.error(error);
+      res.status(400).json({ error: error.message });
     }
   }
 
-  // Actualizar un paciente por ID
+  // Update a patient (only if ACTIVE)
   public async updatePatient(req: Request, res: Response) {
+    const { id: pk } = req.params;
+    const {
+      nombre,
+      apellido,
+      tpdocumento,
+      sexo,
+      documento,
+      telefono,
+      eps,
+      correo,
+      status,
+    } = req.body;
+
     try {
-      const { id: pk } = req.params;
-      const body = req.body as Partial<PatientI>;
+      const body: PatientI = {
+        nombre,
+        apellido,
+        tpdocumento,
+        sexo,
+        documento,
+        telefono,
+        eps,
+        correo,
+        status,
+      };
 
-      const patient = await Patient.findByPk(pk);
-      if (!patient) {
-        return res.status(404).json({ error: "Patient not found" });
+      const patientExist = await Patient.findOne({
+        where: { id: pk, status: "ACTIVATE" },
+      });
+
+      if (patientExist) {
+        await patientExist.update(body, { where: { id: pk } });
+        res.status(200).json(patientExist);
+      } else {
+        res.status(404).json({ error: "Patient not found or inactive" });
       }
-
-      await patient.update(body);
-      res.status(200).json(patient);
-    } catch (error) {
-      res.status(500).json({ error: "Error updating patient" });
+    } catch (error: any) {
+      console.error(error);
+      res.status(400).json({ error: error.message });
     }
   }
 
-  // Eliminar (cambiar status a INACTIVE)
+  // Delete a patient physically (destroy)
   public async deletePatient(req: Request, res: Response) {
     try {
-      const { id: pk } = req.params;
-      const patient = await Patient.findByPk(pk);
+      const { id } = req.params;
+      const patientToDelete = await Patient.findByPk(id);
 
-      if (!patient) {
-        return res.status(404).json({ error: "Patient not found" });
+      if (patientToDelete) {
+        await patientToDelete.destroy();
+        res.status(200).json({ message: "Patient deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Patient not found" });
       }
-
-      await patient.update({ status: "INACTIVE" });
-      res.status(200).json({ message: "Patient set to INACTIVE" });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error deleting patient" });
+    }
+  }
+
+  // Delete a patient logically (mark status = INACTIVE)
+  public async deletePatientAdv(req: Request, res: Response) {
+    try {
+      const { id: pk } = req.params;
+      const patientToUpdate = await Patient.findOne({
+        where: { id: pk, status: "ACTIVATE" },
+      });
+
+      if (patientToUpdate) {
+        await patientToUpdate.update({ status: "INACTIVE" });
+        res.status(200).json({ message: "Patient marked as inactive" });
+      } else {
+        res.status(404).json({ error: "Patient not found" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error marking patient as inactive" });
     }
   }
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"pacient.d.ts","sourceRoot":"","sources":["../../src/routes/pacient.ts"],"names":[],"mappings":"AAAA,OAAO,EAAU,WAAW,EAAE,MAAM,SAAS,CAAC;AAC9C,OAAO,EAAE,iBAAiB,EAAE,MAAM,mCAAmC,CAAC;AAEtE,qBAAa,aAAa;IACjB,iBAAiB,EAAE,iBAAiB,CAA2B;IAE/D,MAAM,CAAC,GAAG,EAAE,WAAW,GAAG,IAAI;CAgBtC"}
