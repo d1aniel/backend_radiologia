@@ -1,0 +1,77 @@
+# modalities.http
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todas las modalidades activas (SIN token)
+GET {{baseUrl}}/api/modalidades/public
+
+### Obtener modalidad por ID (SIN token)
+GET {{baseUrl}}/api/modalidades/public/1
+
+### Crear una nueva modalidad (SIN token)
+POST {{baseUrl}}/api/modalidades/public
+Content-Type: application/json
+
+{
+  "nombre": "RX",
+  "descripcion": "Radiografía convencional de tórax/abdomen",
+  "activa": true
+}
+
+### Actualizar una modalidad (SIN token) - PATCH parcial
+PATCH {{baseUrl}}/api/modalidades/public/1
+Content-Type: application/json
+
+{
+  "descripcion": "Radiografía convencional de tórax (protocolo actualizado)",
+  "activa": true
+}
+
+### Eliminar una modalidad físicamente (SIN token)
+DELETE {{baseUrl}}/api/modalidades/public/3
+
+### Eliminar una modalidad lógicamente (marcar activa = false) (SIN token)
+DELETE {{baseUrl}}/api/modalidades/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todas las modalidades (CON token)
+GET {{baseUrl}}/api/modalidades
+Authorization: Bearer {{token}}
+
+### Obtener modalidad por ID (CON token)
+GET {{baseUrl}}/api/modalidades/1
+Authorization: Bearer {{token}}
+
+### Crear una nueva modalidad (CON token)
+POST {{baseUrl}}/api/modalidades
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "TAC",
+  "descripcion": "Tomografía axial computarizada de cráneo",
+  "activa": true
+}
+
+### Actualizar una modalidad (CON token) - PATCH parcial
+PATCH {{baseUrl}}/api/modalidades/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "TAC-CRANEO",
+  "descripcion": "TAC cráneo con contraste (nuevo protocolo)"
+}
+
+### Eliminar una modalidad físicamente (CON token)
+DELETE {{baseUrl}}/api/modalidades/3
+Authorization: Bearer {{token}}
+
+### Eliminar una modalidad lógicamente (marcar activa = false) (CON token)
+DELETE {{baseUrl}}/api/modalidades/2/logic
+Authorization: Bearer {{token}}

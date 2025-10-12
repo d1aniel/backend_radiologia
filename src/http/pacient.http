@@ -1,0 +1,105 @@
+// patient.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los pacientes (SIN token)
+GET {{baseUrl}}/api/pacientes/public
+
+### Obtener paciente por ID (SIN token)
+GET {{baseUrl}}/api/pacientes/public/1
+
+### Crear un nuevo paciente (SIN token)
+POST {{baseUrl}}/api/pacientes/public
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellido": "Pérez",
+  "tpdocumento": "CC",
+  "sexo": "M",
+  "documento": 1001234567,
+  "telefono": "3201234567",
+  "eps": "Nueva EPS",
+  "correo": "carlos.perez@example.com",
+  "status": "ACTIVATE"
+}
+
+### Actualizar un paciente (SIN token)
+PATCH {{baseUrl}}/api/pacientes/public/1
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Andrés",
+  "apellido": "Pérez Ramírez",
+  "tpdocumento": "CC",
+  "sexo": "M",
+  "documento": 1001234567,
+  "telefono": "3207654321",
+  "eps": "Sura EPS",
+  "correo": "carlos.perez.updated@example.com",
+  "status": "ACTIVATE"
+}
+
+### Eliminar un paciente físicamente (SIN token)
+DELETE {{baseUrl}}/api/pacientes/public/1
+
+### Eliminar un paciente lógicamente (SIN token)
+DELETE {{baseUrl}}/api/pacientes/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los pacientes (CON token)
+GET {{baseUrl}}/api/pacientes
+Authorization: Bearer {{token}}
+
+### Obtener paciente por ID (CON token)
+GET {{baseUrl}}/api/pacientes/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo paciente (CON token)
+POST {{baseUrl}}/api/pacientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "María",
+  "apellido": "Gómez",
+  "tpdocumento": "TI",
+  "sexo": "F",
+  "documento": 1023456789,
+  "telefono": "3019876543",
+  "eps": "Sanitas",
+  "correo": "maria.gomez@example.com",
+  "status": "ACTIVATE"
+}
+
+### Actualizar un paciente (CON token)
+PATCH {{baseUrl}}/api/pacientes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "María Fernanda",
+  "apellido": "Gómez Torres",
+  "tpdocumento": "TI",
+  "sexo": "F",
+  "documento": 1023456789,
+  "telefono": "3011234567",
+  "eps": "Compensar",
+  "correo": "maria.gomez.updated@example.com",
+  "status": "ACTIVATE"
+}
+
+### Eliminar un paciente físicamente (CON token)
+DELETE {{baseUrl}}/api/pacientes/1
+Authorization: Bearer {{token}}
+
+### Eliminar un paciente lógicamente (CON token)
+DELETE {{baseUrl}}/api/pacientes/1/logic
+Authorization: Bearer {{token}}

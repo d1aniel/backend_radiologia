@@ -1,0 +1,99 @@
+// studie.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los estudios (SIN token)
+GET {{baseUrl}}/api/estudios/public
+
+### Obtener estudio por ID (SIN token)
+GET {{baseUrl}}/api/estudios/public/1
+
+### Crear un nuevo estudio (SIN token)
+POST {{baseUrl}}/api/estudios/public
+Content-Type: application/json
+
+{
+  "patient_id": 1,
+  "modalidad": "Radiografía",
+  "equipo": "RX-2000",
+  "tecnologo": "Juan Pérez",
+  "medico": "Dra. Gómez",
+  "fechaHora": "2025-10-12T10:30:00.000Z",
+  "prioridad": "MEDIA",
+  "motivo": "Dolor de espalda"
+}
+
+### Actualizar un estudio (SIN token)
+PATCH {{baseUrl}}/api/estudios/public/1
+Content-Type: application/json
+
+{
+  "modalidad": "Resonancia",
+  "equipo": "RM-3000",
+  "tecnologo": "Ana Torres",
+  "medico": "Dr. Ramírez",
+  "fechaHora": "2025-10-12T11:00:00.000Z",
+  "prioridad": "ALTA",
+  "motivo": "Revisión lumbar"
+}
+
+### Eliminar un estudio físicamente (SIN token)
+DELETE {{baseUrl}}/api/estudios/public/1
+
+### Eliminar un estudio lógicamente (SIN token)
+DELETE {{baseUrl}}/api/estudios/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los estudios (CON token)
+GET {{baseUrl}}/api/estudios
+Authorization: Bearer {{token}}
+
+### Obtener estudio por ID (CON token)
+GET {{baseUrl}}/api/estudios/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo estudio (CON token)
+POST {{baseUrl}}/api/estudios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "patient_id": 2,
+  "modalidad": "Tomografía",
+  "equipo": "CT-500",
+  "tecnologo": "Luis Martínez",
+  "medico": "Dra. Vargas",
+  "fechaHora": "2025-10-12T12:00:00.000Z",
+  "prioridad": "URGENTE",
+  "motivo": "Traumatismo craneal"
+}
+
+### Actualizar un estudio (CON token)
+PATCH {{baseUrl}}/api/estudios/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "modalidad": "Ultrasonido",
+  "equipo": "US-100",
+  "tecnologo": "Carolina Ruiz",
+  "medico": "Dr. Sánchez",
+  "fechaHora": "2025-10-12T12:30:00.000Z",
+  "prioridad": "BAJA",
+  "motivo": "Control de embarazo"
+}
+
+### Eliminar un estudio físicamente (CON token)
+DELETE {{baseUrl}}/api/estudios/1
+Authorization: Bearer {{token}}
+
+### Eliminar un estudio lógicamente (CON token)
+DELETE {{baseUrl}}/api/estudios/1/logic
+Authorization: Bearer {{token}}

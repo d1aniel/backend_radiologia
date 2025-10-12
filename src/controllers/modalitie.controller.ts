@@ -115,4 +115,23 @@ export class ModalidadController {
       return res.status(500).json({ error: "Error deleting modalidad" });
     }
   }
+
+  // borrar lógico — marcar activa = false
+public async deleteModalidadAdv(req: Request, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+
+    const modalidad = await Modalidad.findOne({ where: { id, activa: true } });
+    if (!modalidad) return res.status(404).json({ error: "Modalidad not found or already inactive" });
+
+    await modalidad.update({ activa: false });
+
+    return res.status(200).json({ message: "Modalidad marked as inactive" });
+  } catch (error) {
+    console.error("[deleteModalidadAdv] ", error);
+    return res.status(500).json({ error: "Error marking modalidad as inactive" });
+  }
+}
+
 }

@@ -1,0 +1,84 @@
+// report.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS PÚBLICAS ==================
+
+### Obtener todos los informes (SIN token)
+GET {{baseUrl}}/api/informes/public
+
+### Obtener informe por ID (SIN token)
+GET {{baseUrl}}/api/informes/public/1
+
+### Crear un nuevo informe (SIN token)
+POST {{baseUrl}}/api/informes/public
+Content-Type: application/json
+
+{
+  "estudioId": 101,
+  "cuerpo": "Informe detallado sobre el estudio radiológico.",
+  "medicoId": 5
+}
+
+### Actualizar un informe (SIN token)
+PATCH {{baseUrl}}/api/informes/public/1
+Content-Type: application/json
+
+{
+  "cuerpo": "Informe actualizado con observaciones adicionales."
+}
+
+### Firmar un informe (cambiar estado a FIRMADO) (SIN token)
+PUT {{baseUrl}}/api/informes/public/1/sign
+
+### Eliminar un informe físicamente (SIN token)
+DELETE {{baseUrl}}/api/informes/public/1
+
+### Eliminar un informe lógicamente (SIN token)
+DELETE {{baseUrl}}/api/informes/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los informes (CON token)
+GET {{baseUrl}}/api/informes
+Authorization: Bearer {{token}}
+
+### Obtener informe por ID (CON token)
+GET {{baseUrl}}/api/informes/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo informe (CON token)
+POST {{baseUrl}}/api/informes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estudioId": 102,
+  "cuerpo": "Informe para el estudio 102.",
+  "medicoId": 3
+}
+
+### Actualizar un informe (CON token)
+PATCH {{baseUrl}}/api/informes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cuerpo": "Actualización del informe con nuevas observaciones."
+}
+
+### Firmar un informe (cambiar estado a FIRMADO) (CON token)
+PUT {{baseUrl}}/api/informes/1/sign
+Authorization: Bearer {{token}}
+
+### Eliminar un informe físicamente (CON token)
+DELETE {{baseUrl}}/api/informes/1
+Authorization: Bearer {{token}}
+
+### Eliminar un informe lógicamente (CON token)
+DELETE {{baseUrl}}/api/informes/1/logic
+Authorization: Bearer {{token}}

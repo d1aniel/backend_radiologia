@@ -1,0 +1,131 @@
+# image.http
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Listar imágenes públicas (opcional ?estudioId=)
+GET {{baseUrl}}/api/images/public
+
+### Listar imágenes de un estudio específico (sin token)
+GET {{baseUrl}}/api/images/public?estudioId=1
+
+### Obtener imagen por ID (SIN token)
+GET {{baseUrl}}/api/images/public/1
+
+### Crear imagen (SUBIDA) - SIN TOKEN (curl)
+# Usa el campo 'file' para el archivo. Ajusta ./fixtures/sample.dcm por la ruta de tu archivo local.
+curl -X POST "{{baseUrl}}/api/images/public" \
+  -F "estudioId=1" \
+  -F "tipo=DICOM" \
+  -F "serie=SerieA" \
+  -F "orden=1" \
+  -F "file=@./fixtures/sample.dcm"
+
+### Crear imagen (SUBIDA) - SIN TOKEN (http-client alternativa)
+# Si tu cliente HTTP soporta multipart con < y file path, prueba así:
+POST {{baseUrl}}/api/images/public
+Content-Type: multipart/form-data
+--boundary
+Content-Disposition: form-data; name="estudioId"
+
+1
+--boundary
+Content-Disposition: form-data; name="tipo"
+
+DICOM
+--boundary
+Content-Disposition: form-data; name="serie"
+
+SerieA
+--boundary
+Content-Disposition: form-data; name="orden"
+
+1
+--boundary
+Content-Disposition: form-data; name="file"; filename="sample.dcm"
+Content-Type: application/octet-stream
+
+< ./fixtures/sample.dcm
+--boundary--
+
+### Actualizar metadata de imagen (SIN token)
+PATCH {{baseUrl}}/api/images/public/1
+Content-Type: application/json
+
+{
+  "tipo": "JPG",
+  "serie": "SerieB",
+  "orden": 2,
+  "nombreArchivo": "nuevo_nombre.jpg"
+}
+
+### Eliminar imagen físicamente (SIN token)
+DELETE {{baseUrl}}/api/images/public/1
+
+### Eliminar imagen lógicamente (SIN token)
+DELETE {{baseUrl}}/api/images/public/1/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Listar imágenes (CON token)
+GET {{baseUrl}}/api/images
+Authorization: Bearer {{token}}
+
+### Listar por estudio (CON token)
+GET {{baseUrl}}/api/images?estudioId=1
+Authorization: Bearer {{token}}
+
+### Obtener imagen por ID (CON token)
+GET {{baseUrl}}/api/images/1
+Authorization: Bearer {{token}}
+
+### Crear imagen (SUBIDA) - CON TOKEN (curl)
+curl -X POST "{{baseUrl}}/api/images" \
+  -H "Authorization: Bearer {{token}}" \
+  -F "estudioId=1" \
+  -F "tipo=PNG" \
+  -F "serie=SerieC" \
+  -F "orden=3" \
+  -F "file=@./fixtures/sample.png"
+
+### Crear imagen (SUBIDA) - CON TOKEN (http-client alternativa)
+POST {{baseUrl}}/api/images
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+--boundary
+Content-Disposition: form-data; name="estudioId"
+
+1
+--boundary
+Content-Disposition: form-data; name="tipo"
+
+PNG
+--boundary
+Content-Disposition: form-data; name="file"; filename="sample.png"
+Content-Type: image/png
+
+< ./fixtures/sample.png
+--boundary--
+
+### Actualizar metadata de imagen (CON token)
+PATCH {{baseUrl}}/api/images/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "PNG",
+  "serie": "SerieActualizada",
+  "orden": 5,
+  "nombreArchivo": "actualizado.png"
+}
+
+### Eliminar imagen físicamente (CON token)
+DELETE {{baseUrl}}/api/images/1
+Authorization: Bearer {{token}}
+
+### Eliminar imagen lógicamente (CON token)
+DELETE {{baseUrl}}/api/images/1/logic
+Authorization: Bearer {{token}}

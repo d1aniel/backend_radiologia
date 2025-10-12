@@ -1,23 +1,37 @@
-import { Router, Application } from "express";
+// src/routes/study.routes.ts
+import { Application } from "express";
 import { StudyController } from "../controllers/studie.controller";
+import { authMiddleware } from "../middleware/auth";
 
 export class StudyRoutes {
   public studyController: StudyController = new StudyController();
 
   public routes(app: Application): void {
-    // Listar estudios activos
-    app.route("/studies").get(this.studyController.getAllStudies);
+    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    app.route("/api/estudios/public")
+      .get(this.studyController.getAllStudies)
+      .post(this.studyController.createStudy);
 
-    // Obtener un estudio por ID
-    app.route("/studies/:id").get(this.studyController.getStudyById);
+    app.route("/api/estudios/public/:id")
+      .get(this.studyController.getStudyById)
+      .patch(this.studyController.updateStudy)
+      .delete(this.studyController.deleteStudy); // si más adelante quieres borrado físico cambia aquí
 
-    // Crear estudio
-    app.route("/studies").post(this.studyController.createStudy);
+    // Si quieres una ruta explícita para borrado lógico (marcar INACTIVE)
+    app.route("/api/estudios/public/:id/logic")
+      .delete(this.studyController.deleteStudy);
 
-    // Actualizar estudio por ID
-    app.route("/studies/:id").put(this.studyController.updateStudy);
+    // ================== RUTAS CON AUTENTICACIÓN ==================
+    app.route("/api/estudios")
+      .get(authMiddleware, this.studyController.getAllStudies)
+      .post(authMiddleware, this.studyController.createStudy);
 
-    // Eliminar (status = INACTIVE)
-    app.route("/studies/:id").delete(this.studyController.deleteStudy);
+    app.route("/api/estudios/:id")
+      .get(authMiddleware, this.studyController.getStudyById)
+      .patch(authMiddleware, this.studyController.updateStudy)
+      .delete(authMiddleware, this.studyController.deleteStudy);
+
+    app.route("/api/estudios/:id/logic")
+      .delete(authMiddleware, this.studyController.deleteStudy);
   }
 }

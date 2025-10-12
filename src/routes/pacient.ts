@@ -1,23 +1,36 @@
-import { Router, Application } from "express";
+// src/routes/patient.routes.ts
+import { Application } from "express";
 import { PatientController } from "../controllers/pacient.controller";
+import { authMiddleware } from "../middleware/auth";
 
 export class PatientRoutes {
   public patientController: PatientController = new PatientController();
 
   public routes(app: Application): void {
-    // Obtener todos los pacientes activos
-    app.route("/patients").get(this.patientController.getAllPatients);
+    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    app.route("/api/pacientes/public")
+      .get(this.patientController.getAllPatients)
+      .post(this.patientController.createPatient);
 
-    // Obtener un paciente por ID
-    app.route("/patients/:id").get(this.patientController.getPatientById);
+    app.route("/api/pacientes/public/:id")
+      .get(this.patientController.getPatientById)
+      .patch(this.patientController.updatePatient)
+      .delete(this.patientController.deletePatient);
 
-    // Crear un nuevo paciente
-    app.route("/patients").post(this.patientController.createPatient);
+    app.route("/api/pacientes/public/:id/logic")
+      .delete(this.patientController.deletePatientAdv);
 
-    // Actualizar un paciente por ID
-    app.route("/patients/:id").put(this.patientController.updatePatient);
+    // ================== RUTAS CON AUTENTICACIÓN ==================
+    app.route("/api/pacientes")
+      .get(authMiddleware, this.patientController.getAllPatients)
+      .post(authMiddleware, this.patientController.createPatient);
 
-    // Eliminar (status = INACTIVE)
-    app.route("/patients/:id").delete(this.patientController.deletePatient);
+    app.route("/api/pacientes/:id")
+      .get(authMiddleware, this.patientController.getPatientById)
+      .patch(authMiddleware, this.patientController.updatePatient)
+      .delete(authMiddleware, this.patientController.deletePatient);
+
+    app.route("/api/pacientes/:id/logic")
+      .delete(authMiddleware, this.patientController.deletePatientAdv);
   }
 }

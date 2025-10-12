@@ -10,6 +10,13 @@ import { ReportRoutes } from "./report";
 import { TeamRoutes } from "./team"; 
 import { StudyRoutes } from "./studie";
 import { TechnologistRoutes } from "./technologist";
+import { UserRoutes } from "./authorization/user";
+import { RoleRoutes } from "./authorization/role";
+import { RoleUserRoutes } from "./authorization/role_user";
+import { ResourceRoutes } from "./authorization/resource";
+import { ResourceRoleRoutes } from "./authorization/resourcerole";
+import { RefreshTokenRoutes } from "./authorization/refres_token";
+import { AuthRoutes } from "./authorization/auth";
 
 export class Routes {
   public patientRoutes: PatientRoutes = new PatientRoutes();
@@ -23,6 +30,13 @@ export class Routes {
   public teamRoutes: TeamRoutes = new TeamRoutes();
   public studyRoutes: StudyRoutes = new StudyRoutes();
   public technologistRoutes: TechnologistRoutes = new TechnologistRoutes();
+  public userRoutes: UserRoutes = new UserRoutes();
+  public roleRoutes: RoleRoutes = new RoleRoutes();
+  public roleUserRoutes: RoleUserRoutes = new RoleUserRoutes();
+  public resourceRoutes: ResourceRoutes = new ResourceRoutes();
+  public resourceRoleRoutes: ResourceRoleRoutes = new ResourceRoleRoutes();
+  public refreshTokenRoutes: RefreshTokenRoutes = new RefreshTokenRoutes();
+  public authRoutes: AuthRoutes = new AuthRoutes(); 
 
   public routes(app: Application): void {
     // rutas de pacientes
@@ -57,5 +71,26 @@ export class Routes {
 
     // rutas de tecnólogos
     this.technologistRoutes.routes(app);
+
+    // rutas de usuarios
+    this.userRoutes.routes(app);
+
+    // rutas de roles
+    this.roleRoutes.routes(app);
+
+    // rutas de roleUsers
+    this.roleUserRoutes.routes(app);
+
+    // rutas de resources
+    this.resourceRoutes.routes(app);
+
+    // rutas de resourceRoles
+    this.resourceRoleRoutes.routes(app);
+
+    // rutas de refreshTokens
+    this.refreshTokenRoutes.routes(app);
+
+    // rutas de autenticación
+    this.authRoutes.routes(app);
   }
 }

@@ -1,0 +1,85 @@
+# doctor.http
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los doctores (SIN token)
+GET {{baseUrl}}/api/doctor/public
+
+### Obtener doctor por ID (SIN token)
+GET {{baseUrl}}/api/doctor/public/1
+
+### Crear un nuevo doctor (SIN token)
+POST {{baseUrl}}/api/doctor/public
+Content-Type: application/json
+
+{
+  "nombre": "Dr. Carlos Martínez",
+  "especialidad": "Radiología General",
+  "telefono": "3001234567",
+  "correo": "carlos.martinez@example.com",
+  "registro": "RM-2023-001"
+}
+
+### Actualizar un doctor (SIN token)
+PATCH {{baseUrl}}/api/doctor/public/1
+Content-Type: application/json
+
+{
+  "nombre": "Dr. Carlos A. Martínez",
+  "especialidad": "Neurorradiología",
+  "telefono": "3009876543",
+  "correo": "carlos.martinez.updated@example.com",
+  "registro": "RM-2023-001"
+}
+
+### Eliminar un doctor físicamente (SIN token)
+DELETE {{baseUrl}}/api/doctor/public/1
+
+### Eliminar un doctor lógicamente (SIN token)
+DELETE {{baseUrl}}/api/doctor/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los doctores (CON token)
+GET {{baseUrl}}/api/doctor
+Authorization: Bearer {{token}}
+
+### Obtener doctor por ID (CON token)
+GET {{baseUrl}}/api/doctor/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo doctor (CON token)
+POST {{baseUrl}}/api/doctor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Dra. Ana Pineda",
+  "especialidad": "Pediátrica",
+  "telefono": "3151112222",
+  "correo": "ana.pineda@example.com",
+  "registro": "RM-2024-010"
+}
+
+### Actualizar un doctor (CON token)
+PATCH {{baseUrl}}/api/doctor/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "especialidad": "MSK (Musculoesquelética)",
+  "telefono": "3153334444",
+  "correo": "ana.pineda.updated@example.com"
+}
+
+### Eliminar un doctor físicamente (CON token)
+DELETE {{baseUrl}}/api/doctor/1
+Authorization: Bearer {{token}}
+
+### Eliminar un doctor lógicamente (CON token)
+DELETE {{baseUrl}}/api/doctor/1/logic
+Authorization: Bearer {{token}}

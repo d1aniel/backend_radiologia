@@ -1,0 +1,79 @@
+# label.http
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todas las etiquetas (SIN token)
+GET {{baseUrl}}/api/etiquetas/public
+
+### Obtener etiqueta por ID (SIN token)
+GET {{baseUrl}}/api/etiquetas/public/1
+
+### Crear una nueva etiqueta (SIN token)
+POST {{baseUrl}}/api/etiquetas/public
+Content-Type: application/json
+
+{
+  "nombre": "Urgente",
+  "descripcion": "Estudio con prioridad alta",
+  "status": "ACTIVATE"
+}
+
+### Actualizar una etiqueta (SIN token)
+PATCH {{baseUrl}}/api/etiquetas/public/1
+Content-Type: application/json
+
+{
+  "nombre": "Urgente - Revisión",
+  "descripcion": "Revisión urgente por turno nocturno",
+  "status": "ACTIVATE"
+}
+
+### Eliminar una etiqueta físicamente (SIN token)
+DELETE {{baseUrl}}/api/etiquetas/public/1
+
+### Eliminar una etiqueta lógicamente (SIN token)
+DELETE {{baseUrl}}/api/etiquetas/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todas las etiquetas (CON token)
+GET {{baseUrl}}/api/etiquetas
+Authorization: Bearer {{token}}
+
+### Obtener etiqueta por ID (CON token)
+GET {{baseUrl}}/api/etiquetas/1
+Authorization: Bearer {{token}}
+
+### Crear una nueva etiqueta (CON token)
+POST {{baseUrl}}/api/etiquetas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Control",
+  "descripcion": "Estudio de control post tratamiento",
+  "status": "ACTIVATE"
+}
+
+### Actualizar una etiqueta (CON token)
+PATCH {{baseUrl}}/api/etiquetas/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Control - 3 meses",
+  "descripcion": "Control a los 3 meses post-op",
+  "status": "ACTIVATE"
+}
+
+### Eliminar una etiqueta físicamente (CON token)
+DELETE {{baseUrl}}/api/etiquetas/1
+Authorization: Bearer {{token}}
+
+### Eliminar una etiqueta lógicamente (CON token)
+DELETE {{baseUrl}}/api/etiquetas/1/logic
+Authorization: Bearer {{token}}

@@ -1,23 +1,36 @@
-import { Router, Application } from "express";
+// src/routes/payment.routes.ts
+import { Application } from "express";
 import { PaymentController } from "../controllers/payment.controller";
+import { authMiddleware } from "../middleware/auth";
 
 export class PaymentRoutes {
   public paymentController: PaymentController = new PaymentController();
 
   public routes(app: Application): void {
-    // Obtener todos los pagos (no VOID)
-    app.route("/payments").get(this.paymentController.getAllPayments);
+    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    app.route("/api/pagos/public")
+      .get(this.paymentController.getAllPayments)
+      .post(this.paymentController.createPayment);
 
-    // Obtener un pago por ID
-    app.route("/payments/:id").get(this.paymentController.getPaymentById);
+    app.route("/api/pagos/public/:id")
+      .get(this.paymentController.getPaymentById)
+      .patch(this.paymentController.updatePayment)
+      .delete(this.paymentController.deletePayment);
 
-    // Crear un nuevo pago
-    app.route("/payments").post(this.paymentController.createPayment);
+    app.route("/api/pagos/public/:id/logic")
+      .delete(this.paymentController.deletePaymentAdv);
 
-    // Actualizar un pago por ID
-    app.route("/payments/:id").put(this.paymentController.updatePayment);
+    // ================== RUTAS CON AUTENTICACIÓN ==================
+    app.route("/api/pagos")
+      .get(authMiddleware, this.paymentController.getAllPayments)
+      .post(authMiddleware, this.paymentController.createPayment);
 
-    // Eliminar (estado = VOID)
-    app.route("/payments/:id").delete(this.paymentController.deletePayment);
+    app.route("/api/pagos/:id")
+      .get(authMiddleware, this.paymentController.getPaymentById)
+      .patch(authMiddleware, this.paymentController.updatePayment)
+      .delete(authMiddleware, this.paymentController.deletePayment);
+
+    app.route("/api/pagos/:id/logic")
+      .delete(authMiddleware, this.paymentController.deletePaymentAdv);
   }
 }

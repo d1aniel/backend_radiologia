@@ -1,0 +1,98 @@
+// quote.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todas las citas (SIN token)
+GET {{baseUrl}}/api/quotes/public
+
+### Obtener una cita por ID (SIN token)
+GET {{baseUrl}}/api/quotes/public/1
+
+### Crear una nueva cita (SIN token)
+POST {{baseUrl}}/api/quotes/public
+Content-Type: application/json
+
+{
+  "paciente": "Carlos Pérez",
+  "modalidad": "RX",
+  "equipo": "Rayos X Sala 1",
+  "tecnologo": "Ana Torres",
+  "fechaHora": "2025-10-12T09:30:00-05:00",
+  "motivo": "Dolor lumbar persistente",
+  "estado": "PENDIENTE"
+}
+
+### Actualizar una cita (SIN token)
+PATCH {{baseUrl}}/api/quotes/public/1
+Content-Type: application/json
+
+{
+  "paciente": "Carlos A. Pérez",
+  "modalidad": "RX",
+  "equipo": "Rayos X Sala 2",
+  "tecnologo": "Ana Torres",
+  "fechaHora": "2025-10-12T10:00:00-05:00",
+  "motivo": "Ajuste por disponibilidad de sala",
+  "estado": "CONFIRMADA"
+}
+
+### Eliminar una cita físicamente (SIN token)
+DELETE {{baseUrl}}/api/quotes/public/1
+
+### Eliminar una cita lógicamente (SIN token)
+DELETE {{baseUrl}}/api/quotes/public/2/logic
+
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todas las citas (CON token)
+GET {{baseUrl}}/api/quotes
+Authorization: Bearer {{token}}
+
+### Obtener una cita por ID (CON token)
+GET {{baseUrl}}/api/quotes/1
+Authorization: Bearer {{token}}
+
+### Crear una nueva cita (CON token)
+POST {{baseUrl}}/api/quotes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "paciente": "María Gómez",
+  "modalidad": "USG",
+  "equipo": "Ecógrafo Philips Affiniti",
+  "tecnologo": "Luis Martínez",
+  "fechaHora": "2025-10-13T14:15:00-05:00",
+  "motivo": "Ecografía abdominal por control",
+  "estado": "PENDIENTE"
+}
+
+### Actualizar una cita (CON token)
+PATCH {{baseUrl}}/api/quotes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "paciente": "María F. Gómez",
+  "modalidad": "USG",
+  "equipo": "Ecógrafo Philips Affiniti",
+  "tecnologo": "Luis Martínez",
+  "fechaHora": "2025-10-13T15:00:00-05:00",
+  "motivo": "Cambio de hora por disponibilidad",
+  "estado": "CONFIRMADA"
+}
+
+### Eliminar una cita físicamente (CON token)
+DELETE {{baseUrl}}/api/quotes/1
+Authorization: Bearer {{token}}
+
+### Eliminar una cita lógicamente (CON token)
+DELETE {{baseUrl}}/api/quotes/1/logic
+Authorization: Bearer {{token}}

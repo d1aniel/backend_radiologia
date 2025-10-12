@@ -1,25 +1,44 @@
+// src/routes/modalitie.routes.ts  (o modalidad.routes.ts)
 import { Application } from "express";
 import { ModalidadController } from "../controllers/modalitie.controller";
+import { authMiddleware } from "../middleware/auth";
 
 export class ModalidadRoutes {
   public modalidadController: ModalidadController = new ModalidadController();
 
   public routes(app: Application): void {
-    // Obtener todas las modalidades activas
-    app.route("/modalidades").get(this.modalidadController.getAllModalidades);
-
-    // Obtener modalidad por ID
-    app.route("/modalidades/:id").get(this.modalidadController.getModalidadById);
-
-    // Crear nueva modalidad
-    app.route("/modalidades").post(this.modalidadController.createModalidad);
-
-    // Actualizar modalidad por ID
-    app.route("/modalidades/:id").put(this.modalidadController.updateModalidad);
-
-    // Eliminar modalidad (status = inactiva)
+    // ================== RUTAS SIN AUTENTICACIÓN ==================
     app
-      .route("/modalidades/:id")
-      .delete(this.modalidadController.deleteModalidad);
+      .route("/api/modalidades/public")
+      .get(this.modalidadController.getAllModalidades)
+      .post(this.modalidadController.createModalidad);
+
+    app
+      .route("/api/modalidades/public/:id")
+      .get(this.modalidadController.getModalidadById)
+      .patch(this.modalidadController.updateModalidad)
+      .delete(this.modalidadController.deleteModalidad); // si quieres delete físico público
+
+    // Borrado lógico público
+    app
+      .route("/api/modalidades/public/:id/logic")
+      .delete(this.modalidadController.deleteModalidadAdv);
+
+    // ================== RUTAS CON AUTENTICACIÓN ==================
+    app
+      .route("/api/modalidades")
+      .get(authMiddleware, this.modalidadController.getAllModalidades)
+      .post(authMiddleware, this.modalidadController.createModalidad);
+
+    app
+      .route("/api/modalidades/:id")
+      .get(authMiddleware, this.modalidadController.getModalidadById)
+      .patch(authMiddleware, this.modalidadController.updateModalidad)
+      .delete(authMiddleware, this.modalidadController.deleteModalidad);
+
+    // Borrado lógico con auth
+    app
+      .route("/api/modalidades/:id/logic")
+      .delete(authMiddleware, this.modalidadController.deleteModalidadAdv);
   }
 }

@@ -1,0 +1,89 @@
+// team.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los equipos (SIN token)
+GET {{baseUrl}}/api/equipos/public
+
+### Obtener equipo por ID (SIN token)
+GET {{baseUrl}}/api/equipos/public/1
+
+### Crear un nuevo equipo (SIN token)
+POST {{baseUrl}}/api/equipos/public
+Content-Type: application/json
+
+{
+  "nombre": "RX-01 Sala A",
+  "modalidad": "RX",
+  "ubicacion": "Sala A - Piso 1",
+  "estado": "DISPONIBLE",
+  "observaciones": "Equipo nuevo"
+}
+
+### Actualizar un equipo (SIN token)
+PATCH {{baseUrl}}/api/equipos/public/1
+Content-Type: application/json
+
+{
+  "nombre": "RX-01 Sala A",
+  "modalidad": "RX",
+  "ubicacion": "Sala A - Piso 1",
+  "estado": "MANTENIMIENTO",
+  "observaciones": "Se realiza mantenimiento"
+}
+
+### Eliminar un equipo físicamente (SIN token)
+DELETE {{baseUrl}}/api/equipos/public/1
+
+### Eliminar un equipo lógicamente (SIN token)
+DELETE {{baseUrl}}/api/equipos/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los equipos (CON token)
+GET {{baseUrl}}/api/equipos
+Authorization: Bearer {{token}}
+
+### Obtener equipo por ID (CON token)
+GET {{baseUrl}}/api/equipos/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo equipo (CON token)
+POST {{baseUrl}}/api/equipos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "TAC-02 Sala B",
+  "modalidad": "TAC",
+  "ubicacion": "Sala B - Piso 2",
+  "estado": "DISPONIBLE",
+  "observaciones": "Equipo recién instalado"
+}
+
+### Actualizar un equipo (CON token)
+PATCH {{baseUrl}}/api/equipos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "TAC-02 Sala B",
+  "modalidad": "TAC",
+  "ubicacion": "Sala B - Piso 2",
+  "estado": "OCUPADO",
+  "observaciones": "Equipo en uso"
+}
+
+### Eliminar un equipo físicamente (CON token)
+DELETE {{baseUrl}}/api/equipos/1
+Authorization: Bearer {{token}}
+
+### Eliminar un equipo lógicamente (CON token)
+DELETE {{baseUrl}}/api/equipos/1/logic
+Authorization: Bearer {{token}}

@@ -1,0 +1,89 @@
+// technologist.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los tecnólogos (SIN token)
+GET {{baseUrl}}/api/tecnologos/public
+
+### Obtener tecnólogo por ID (SIN token)
+GET {{baseUrl}}/api/tecnologos/public/1
+
+### Crear un nuevo tecnólogo (SIN token)
+POST {{baseUrl}}/api/tecnologos/public
+Content-Type: application/json
+
+{
+  "nombre": "Juan Pérez",
+  "especialidad": "RX",
+  "telefono": "3201234567",
+  "correo": "juan.perez@example.com",
+  "status": "ACTIVE"
+}
+
+### Actualizar un tecnólogo (SIN token)
+PATCH {{baseUrl}}/api/tecnologos/public/1
+Content-Type: application/json
+
+{
+  "nombre": "Juan Andrés Pérez",
+  "especialidad": "TAC",
+  "telefono": "3207654321",
+  "correo": "juan.perez.updated@example.com",
+  "status": "ACTIVE"
+}
+
+### Eliminar un tecnólogo físicamente (SIN token)
+DELETE {{baseUrl}}/api/tecnologos/public/1
+
+### Eliminar un tecnólogo lógicamente (SIN token)
+DELETE {{baseUrl}}/api/tecnologos/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los tecnólogos (CON token)
+GET {{baseUrl}}/api/tecnologos
+Authorization: Bearer {{token}}
+
+### Obtener tecnólogo por ID (CON token)
+GET {{baseUrl}}/api/tecnologos/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo tecnólogo (CON token)
+POST {{baseUrl}}/api/tecnologos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Ana Gómez",
+  "especialidad": "RM",
+  "telefono": "3019876543",
+  "correo": "ana.gomez@example.com",
+  "status": "ACTIVE"
+}
+
+### Actualizar un tecnólogo (CON token)
+PATCH {{baseUrl}}/api/tecnologos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Ana Fernanda Gómez",
+  "especialidad": "TAC",
+  "telefono": "3011234567",
+  "correo": "ana.gomez.updated@example.com",
+  "status": "ACTIVE"
+}
+
+### Eliminar un tecnólogo físicamente (CON token)
+DELETE {{baseUrl}}/api/tecnologos/1
+Authorization: Bearer {{token}}
+
+### Eliminar un tecnólogo lógicamente (CON token)
+DELETE {{baseUrl}}/api/tecnologos/1/logic
+Authorization: Bearer {{token}}

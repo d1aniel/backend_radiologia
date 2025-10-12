@@ -1,0 +1,87 @@
+// payment.http
+import dotenv from "dotenv";
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@baseUrl = http://localhost:4000
+
+### ================== RUTAS SIN AUTENTICACIÓN ==================
+
+### Obtener todos los pagos (no VOID)
+GET {{baseUrl}}/api/pagos/public
+
+### Obtener pago por ID
+GET {{baseUrl}}/api/pagos/public/1
+
+### Crear un nuevo pago
+POST {{baseUrl}}/api/pagos/public
+Content-Type: application/json
+
+{
+  "pacienteId": 1,
+  "estudioId": 2,
+  "monto": 150000,
+  "metodo": "EFECTIVO",
+  "fecha": "2025-10-12",
+  "estado": "PAID"
+}
+
+### Actualizar un pago
+PATCH {{baseUrl}}/api/pagos/public/1
+Content-Type: application/json
+
+{
+  "monto": 200000,
+  "metodo": "TARJETA",
+  "estado": "PENDING"
+}
+
+### Eliminar un pago físicamente
+DELETE {{baseUrl}}/api/pagos/public/1
+
+### Eliminar un pago lógicamente (VOID)
+DELETE {{baseUrl}}/api/pagos/public/2/logic
+
+---
+
+### ================== RUTAS CON AUTENTICACIÓN ==================
+
+### Obtener todos los pagos (CON token)
+GET {{baseUrl}}/api/pagos
+Authorization: Bearer {{token}}
+
+### Obtener pago por ID (CON token)
+GET {{baseUrl}}/api/pagos/1
+Authorization: Bearer {{token}}
+
+### Crear un nuevo pago (CON token)
+POST {{baseUrl}}/api/pagos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pacienteId": 2,
+  "estudioId": 3,
+  "monto": 250000,
+  "metodo": "TRANSFERENCIA",
+  "fecha": "2025-10-12",
+  "estado": "PAID"
+}
+
+### Actualizar un pago (CON token)
+PATCH {{baseUrl}}/api/pagos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "monto": 300000,
+  "metodo": "OTRO",
+  "estado": "PENDING"
+}
+
+### Eliminar un pago físicamente (CON token)
+DELETE {{baseUrl}}/api/pagos/1
+Authorization: Bearer {{token}}
+
+### Eliminar un pago lógicamente (CON token)
+DELETE {{baseUrl}}/api/pagos/1/logic
+Authorization: Bearer {{token}}
