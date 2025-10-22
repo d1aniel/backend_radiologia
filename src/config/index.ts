@@ -4,7 +4,7 @@ import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import { sequelize, testConnection, getDatabaseInfo } from "../database/connection";
-import "../models/associations"; // asegúrate que esto registre relaciones
+import "../models/associations"; 
 import { Routes } from "../routes";
 
 dotenv.config();
@@ -19,7 +19,7 @@ export class App {
     this.settings();
     this.middlewares();
     this.routes();
-    // NO llamar dbConnection aquí: exponeremos init() para ser await-ado desde index.ts
+    
   }
 
   private settings(): void {
@@ -37,10 +37,6 @@ export class App {
     this.routesProvider.routes(this.app);
   }
 
-  /**
-   * Método que intenta conectar, testear y sincronizar la BD.
-   * Lanza error o termina el proceso si falla (configurable).
-   */
   public async dbConnection(): Promise<void> {
     try {
       const dbInfo = getDatabaseInfo();
@@ -51,12 +47,10 @@ export class App {
         throw new Error("Test de conexión fallido");
       }
 
-      // sincroniza después de que las asociaciones ya estén registradas
       await sequelize.sync({ force: false });
       console.log("📦 Base de datos sincronizada exitosamente");
     } catch (error) {
       console.error("❌ Error al conectar con la base de datos:", error);
-      // En desarrollo podrías comentar la siguiente línea; en producción es recomendable terminar el proceso.
       process.exit(1);
     }
   }

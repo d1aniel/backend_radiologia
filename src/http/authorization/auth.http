@@ -11,7 +11,7 @@ Content-Type: application/json
 
 {
   "username": "d1aniel",
-  "email": "dacarobri98@gmail.com",
+  "email": "admin@gmail.com",
   "password": "12345678",
   "is_active": "ACTIVE",
   "avatar": "avatar.jpg"
