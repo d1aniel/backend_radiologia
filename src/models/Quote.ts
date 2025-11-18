@@ -1,25 +1,30 @@
+// src/models/Quote.ts
 import { DataTypes, Model } from "sequelize";
-import  sequelize  from "../database/connection";
+import sequelize from "../database/connection";
 
 export type EstadoCita = "PENDIENTE" | "CONFIRMADA" | "ATENDIDA" | "CANCELADA";
 
 export interface QuoteI {
   id?: number;
-  paciente: string;
+
+  patient_id: number;       
+  technologist_id?: number | null;  
+
   modalidad: string;
   equipo: string;
-  tecnologo: string;
-  fechaHora: string; 
+  fechaHora: string;
   motivo: string;
   estado: EstadoCita;
 }
 
 export class Quote extends Model implements QuoteI {
   public id!: number;
-  public paciente!: string;
+
+  public patient_id!: number;
+  public technologist_id!: number | null;
+
   public modalidad!: string;
   public equipo!: string;
-  public tecnologo!: string;
   public fechaHora!: string;
   public motivo!: string;
   public estado!: EstadoCita;
@@ -27,13 +32,28 @@ export class Quote extends Model implements QuoteI {
 
 Quote.init(
   {
-    paciente: {
-      type: DataTypes.STRING,
+    // 🔥 FK al paciente
+    patient_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        notEmpty: { msg: "El paciente es obligatorio" },
-      },
+      // opcionalmente puedes activar referencias:
+      // references: {
+      //   model: "patients",
+      //   key: "id",
+      // },
     },
+
+    // 🔥 FK al tecnólogo
+    technologist_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+      // references: {
+      //   model: "technologists",
+      //   key: "id",
+      // },
+    },
+
     modalidad: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -42,10 +62,7 @@ Quote.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    tecnologo: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     fechaHora: {
       type: DataTypes.DATE,
       allowNull: false,

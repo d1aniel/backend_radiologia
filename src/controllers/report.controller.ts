@@ -31,28 +31,46 @@ export class ReportController {
     }
   }
 
-  // Create a new report (validate 1:1 with estudioId)
+  // Create a new report (validate 1:1 with estudio_id)
   public async createReport(req: Request, res: Response) {
     try {
+      // El front envía estudio_id y medico_id (snake_case).
+      // Aun así soportamos también camelCase por si acaso.
       const {
+        estudio_id,
         estudioId,
         estado,
         cuerpo,
-        medicoId
-      } = req.body as ReportI;
-
-      // Basic body assembly like en PatientController
-      const body: ReportI = {
-        estudioId,
-        estado,
-        cuerpo,
+        medico_id,
         medicoId,
-      } as ReportI;
+      } = req.body as any;
+
+      const finalEstudioId: number | undefined = estudio_id ?? estudioId;
+      const finalMedicoId: number | undefined = medico_id ?? medicoId;
+
+      if (!finalEstudioId) {
+        return res.status(400).json({ error: "estudio_id es obligatorio" });
+      }
+      if (!finalMedicoId) {
+        return res.status(400).json({ error: "medico_id es obligatorio" });
+      }
+
+      // Armamos el body usando la interfaz del modelo (camelCase)
+      const body: ReportI = {
+        estudioId: finalEstudioId,
+        estado,
+        cuerpo,
+        medicoId: finalMedicoId,
+      };
 
       // Check 1:1 — no duplicate report for same estudioId
-      const exists = await Report.findOne({ where: { estudioId: body.estudioId } });
+      const exists = await Report.findOne({
+        where: { estudioId: body.estudioId },
+      });
       if (exists) {
-        return res.status(400).json({ error: "El estudio ya tiene un informe" });
+        return res
+          .status(400)
+          .json({ error: "El estudio ya tiene un informe" });
       }
 
       const newReport = await Report.create(body as any);
@@ -60,7 +78,10 @@ export class ReportController {
     } catch (error: any) {
       console.error(error);
       // Validations from Sequelize
-      if (error?.name === "SequelizeValidationError" || error?.name === "SequelizeUniqueConstraintError") {
+      if (
+        error?.name === "SequelizeValidationError" ||
+        error?.name === "SequelizeUniqueConstraintError"
+      ) {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: "Error creating report" });
@@ -71,12 +92,19 @@ export class ReportController {
   public async updateReport(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
+
+      // Soportamos tanto snake_case como camelCase
       const {
+        estudio_id,
         estudioId,
         estado,
         cuerpo,
-        medicoId
-      } = req.body as Partial<ReportI>;
+        medico_id,
+        medicoId,
+      } = req.body as any;
+
+      const newEstudioId: number | undefined = estudio_id ?? estudioId;
+      const newMedicoId: number | undefined = medico_id ?? medicoId;
 
       const report = await Report.findByPk(pk);
       if (!report) {
@@ -84,19 +112,26 @@ export class ReportController {
       }
 
       // If estudioId changes, ensure uniqueness
-      if (estudioId && estudioId !== report.estudioId) {
-        const exists = await Report.findOne({ where: { estudioId } });
+      if (
+        typeof newEstudioId !== "undefined" &&
+        newEstudioId !== report.estudioId
+      ) {
+        const exists = await Report.findOne({
+          where: { estudioId: newEstudioId },
+        });
         if (exists) {
-          return res.status(400).json({ error: "El nuevo estudioId ya tiene asociado un informe" });
+          return res.status(400).json({
+            error: "El nuevo estudio ya tiene asociado un informe",
+          });
         }
       }
 
-      // Build patch object only with defined properties to satisfy exactOptionalPropertyTypes
+      // Build patch object only with defined properties
       const patch: Partial<ReportI> = {};
-      if (typeof estudioId !== "undefined") patch.estudioId = estudioId;
+      if (typeof newEstudioId !== "undefined") patch.estudioId = newEstudioId;
       if (typeof estado !== "undefined") patch.estado = estado;
       if (typeof cuerpo !== "undefined") patch.cuerpo = cuerpo;
-      if (typeof medicoId !== "undefined") patch.medicoId = medicoId;
+      if (typeof newMedicoId !== "undefined") patch.medicoId = newMedicoId;
 
       await report.update(patch as any);
       res.status(200).json(report);

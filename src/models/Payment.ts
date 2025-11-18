@@ -1,24 +1,27 @@
 // src/models/payment.ts
 import { DataTypes, Model, Optional } from "sequelize";
-import  sequelize  from "../database/connection";
+import sequelize from "../database/connection";
 
 export type MetodoPago = "EFECTIVO" | "TARJETA" | "TRANSFERENCIA" | "OTRO";
 export type EstadoPago = "PAID" | "PENDING" | "VOID";
 
 export interface PaymentI {
   id?: number;
-  pacienteId: number;
-  estudioId?: number | null;
+  pacienteId: number;          // TS: sigue igual
+  estudioId?: number | null;   // lo usaremos para quote_id
   monto: number;
   metodo: MetodoPago;
-  fecha: string;          // YYYY-MM-DD
-  estado: EstadoPago;     // default: 'PAID'
+  fecha: string;               // YYYY-MM-DD
+  estado: EstadoPago;          // default: 'PAID'
 }
 
 // Para creación: id es opcional
 type PaymentCreationAttributes = Optional<PaymentI, "id" | "estado" | "estudioId">;
 
-export class Payment extends Model<PaymentI, PaymentCreationAttributes> implements PaymentI {
+export class Payment
+  extends Model<PaymentI, PaymentCreationAttributes>
+  implements PaymentI
+{
   public id!: number;
   public pacienteId!: number;
   public estudioId!: number | null;
@@ -30,24 +33,28 @@ export class Payment extends Model<PaymentI, PaymentCreationAttributes> implemen
 
 Payment.init(
   {
+    
     pacienteId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "paciente_id",
+      field: "patient_id",
       validate: {
         isInt: { msg: "pacienteId debe ser entero" },
         min: { args: [1], msg: "pacienteId inválido" },
       },
     },
+
+    
     estudioId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      field: "estudio_id",
+      field: "quote_id",
       validate: {
         isInt: { msg: "estudioId debe ser entero" },
         min: { args: [1], msg: "estudioId inválido" },
       },
     },
+
     monto: {
       type: DataTypes.DECIMAL(14, 2),
       allowNull: false,
@@ -76,19 +83,14 @@ Payment.init(
     sequelize,
     modelName: "Payment",
     tableName: "payments",
-    timestamps: false, 
+    timestamps: false,
     indexes: [
-      { fields: ["paciente_id"] },
-      { fields: ["estudio_id"] },
+      { fields: ["patient_id"] },
+      { fields: ["quote_id"] },
       { fields: ["fecha"] },
     ],
   }
 );
 
-// (Opcional) Si manejas asociaciones en otro archivo, puedes exportar una función helper.
-// export const associatePayment = (models: any) => {
-//   Payment.belongsTo(models.Patient, { foreignKey: "paciente_id", as: "paciente" });
-//   Payment.belongsTo(models.Study,   { foreignKey: "estudio_id",  as: "estudio"  });
-// };
 
 export default Payment;

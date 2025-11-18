@@ -28,8 +28,7 @@ export class Doctor extends Model<DoctorI, DoctorCreationAttrs> implements Docto
 
 Doctor.init(
   {
-    // Sequelize crea 'id' automáticamente (INTEGER, PK, autoIncrement) si no lo defines.
-
+    
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,

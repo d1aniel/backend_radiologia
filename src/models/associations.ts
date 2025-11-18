@@ -27,6 +27,7 @@ Patient.hasMany(Study, {
 Study.belongsTo(Patient, {
   foreignKey: "patient_id",
   targetKey: "id",
+  as: "patient",
 });
 
 // Estudio -> Imágenes
@@ -238,4 +239,30 @@ Team.belongsToMany(Technologist, {
   foreignKey: "team_id",
   otherKey: "technologist_id",
   as: "technologists",
+});
+
+// Technologist -> Quote
+Technologist.hasMany(Quote, {
+  foreignKey: "technologist_id",
+  sourceKey: "id",
+  as: "quotes", 
+});
+
+Quote.belongsTo(Technologist, {
+  foreignKey: "technologist_id",
+  targetKey: "id",
+  as: "technologist_obj", 
+});
+
+// Study -> Report (1:1)
+Study.hasOne(Report, {
+  foreignKey: "estudio_id", 
+  sourceKey: "id",
+  as: "informe",
+});
+
+Report.belongsTo(Study, {
+  foreignKey: "estudio_id",
+  targetKey: "id",
+  as: "estudio",
 });

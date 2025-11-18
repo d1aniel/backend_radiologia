@@ -1,5 +1,5 @@
 # modalities.http
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzMzA5NDk3LCJleHAiOjE3NjMzMTAwOTd9.VJdDaKrh4xveRG8fZ0ED0KjWBuVK6rw4r7V9d92A01I
 @baseUrl = http://localhost:4000
 
 ### ================== RUTAS SIN AUTENTICACIÓN ==================

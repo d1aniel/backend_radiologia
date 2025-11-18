@@ -1,7 +1,7 @@
 // studie.http
 import dotenv from "dotenv";
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYwMjk4NDA3LCJleHAiOjE3NjAyOTkwMDd9.hclyfyuKBU3fGOabdRJhuO4GVgbtLoZyG2M4YW7Ge78
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzYzMjQ5NDA3LCJleHAiOjE3NjMyNTAwMDd9.GD2Se24CV2sTwQ3nk8LFUsRA98g7uFPXByyXLh9uDms
 @baseUrl = http://localhost:4000
 
 ### ================== RUTAS SIN AUTENTICACIÓN ==================

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { Technologist, TechnologistI } from "../models/Technologist"; // ajusta ruta si la tienes distinta
+import { Technologist, TechnologistAttrs } from "../models/Technologist"; // ajusta ruta si la tienes distinta
 
 export class TechnologistController {
   // Get all technologists with status "ACTIVE"
   public async getAllTechnologists(req: Request, res: Response) {
     try {
-      const technologists: TechnologistI[] = await Technologist.findAll({
+      const technologists: TechnologistAttrs[] = await Technologist.findAll({
         where: { status: "ACTIVE" },
       });
       res.status(200).json({ technologists });
@@ -39,7 +39,7 @@ export class TechnologistController {
     const { nombre, especialidad, telefono, correo, status } = req.body;
 
     try {
-      const body: TechnologistI = {
+      const body: TechnologistAttrs = {
         nombre,
         especialidad,
         telefono,
@@ -62,7 +62,7 @@ export class TechnologistController {
     const { nombre, especialidad, telefono, correo, status } = req.body;
 
     try {
-      const body: TechnologistI = {
+      const body: TechnologistAttrs = {
         nombre,
         especialidad,
         telefono,

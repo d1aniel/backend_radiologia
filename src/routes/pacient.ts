@@ -8,17 +8,17 @@ export class PatientRoutes {
 
   public routes(app: Application): void {
     // ================== RUTAS SIN AUTENTICACIÓN ==================
-    app.route("/api/pacientes/public")
-      .get(this.patientController.getAllPatients)
-      .post(this.patientController.createPatient);
+    // app.route("/api/pacientes/public")
+    //   .get(this.patientController.getAllPatients)
+    //   .post(this.patientController.createPatient);
 
-    app.route("/api/pacientes/public/:id")
-      .get(this.patientController.getPatientById)
-      .patch(this.patientController.updatePatient)
-      .delete(this.patientController.deletePatient);
+    // app.route("/api/pacientes/public/:id")
+    //   .get(this.patientController.getPatientById)
+    //   .patch(this.patientController.updatePatient)
+    //   .delete(this.patientController.deletePatient);
 
-    app.route("/api/pacientes/public/:id/logic")
-      .delete(this.patientController.deletePatientAdv);
+    // app.route("/api/pacientes/public/:id/logic")
+    //   .delete(this.patientController.deletePatientAdv);
 
     // ================== RUTAS CON AUTENTICACIÓN ==================
     app.route("/api/pacientes")

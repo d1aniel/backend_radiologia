@@ -1,11 +1,27 @@
 import { Request, Response } from "express";
 import { Quote, QuoteI, EstadoCita } from "../models/Quote";
+import { Patient } from "../models/Pacient";
+import { Technologist } from "../models/Technologist";
 
 export class QuoteController {
   // Get all quotes
   public async getAllQuotes(req: Request, res: Response) {
     try {
-      const quotes: QuoteI[] = await Quote.findAll();
+      const quotes = await Quote.findAll({
+        include: [
+          {
+            model: Patient,
+            as: "paciente_obj",
+            attributes: ["id", "nombre", "apellido", "documento"],
+          },
+          {
+            model: Technologist,
+            as: "technologist_obj",
+            attributes: ["id", "nombre", "especialidad"],
+          },
+        ],
+      });
+
       res.status(200).json({ quotes });
     } catch (error) {
       console.error(error);
@@ -17,10 +33,23 @@ export class QuoteController {
   public async getQuoteById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
-      const quote = await Quote.findByPk(pk);
+
+      const quote = await Quote.findByPk(pk, {
+        include: [
+          {
+            model: Patient,
+            as: "paciente_obj",
+            attributes: ["id", "nombre", "apellido", "documento"],
+          },
+          {
+            model: Technologist,
+            as: "technologist_obj",
+            attributes: ["id", "nombre", "especialidad"],
+          },
+        ],
+      });
 
       if (quote) {
-        // envolvemos en objeto como en PatientController
         res.status(200).json({ quote });
       } else {
         res.status(404).json({ error: "Quote not found" });
@@ -34,10 +63,10 @@ export class QuoteController {
   // Create a new quote
   public async createQuote(req: Request, res: Response) {
     const {
-      paciente,
+      patient_id,
+      technologist_id,
       modalidad,
       equipo,
-      tecnologo,
       fechaHora,
       motivo,
       estado,
@@ -45,10 +74,10 @@ export class QuoteController {
 
     try {
       const body: QuoteI = {
-        paciente,
+        patient_id,
+        technologist_id,
         modalidad,
         equipo,
-        tecnologo,
         fechaHora,
         motivo,
         estado: (estado ?? "PENDIENTE") as EstadoCita,
@@ -58,8 +87,9 @@ export class QuoteController {
       res.status(201).json(newQuote);
     } catch (error: any) {
       console.error(error);
-      // si Sequelize lanza validación, devolvemos 400 con el mensaje
-      res.status(400).json({ error: error.message ?? "Error creating quote" });
+      res
+        .status(400)
+        .json({ error: error.message ?? "Error creating quote" });
     }
   }
 
@@ -67,10 +97,10 @@ export class QuoteController {
   public async updateQuote(req: Request, res: Response) {
     const { id: pk } = req.params;
     const {
-      paciente,
+      patient_id,
+      technologist_id,
       modalidad,
       equipo,
-      tecnologo,
       fechaHora,
       motivo,
       estado,
@@ -78,10 +108,10 @@ export class QuoteController {
 
     try {
       const body: Partial<QuoteI> = {
-        paciente,
+        patient_id,
+        technologist_id,
         modalidad,
         equipo,
-        tecnologo,
         fechaHora,
         motivo,
         estado,
@@ -96,7 +126,9 @@ export class QuoteController {
       }
     } catch (error: any) {
       console.error(error);
-      res.status(400).json({ error: error.message ?? "Error updating quote" });
+      res
+        .status(400)
+        .json({ error: error.message ?? "Error updating quote" });
     }
   }
 
@@ -132,7 +164,9 @@ export class QuoteController {
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Error marking quote as CANCELADA" });
+      res
+        .status(500)
+        .json({ error: "Error marking quote as CANCELADA" });
     }
   }
 }

@@ -17,8 +17,8 @@ POST {{baseUrl}}/api/resources/public
 Content-Type: application/json
 
 {
-  "path": "/api/pacientes",
-  "method": "POST",
+  "path": "/api/tecnologos/:id",
+  "method": "PATCH",
   "is_active": "ACTIVE"
 }
 
@@ -54,7 +54,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "path": "/api/users",
+  "path": "/api/pacientes",
   "method": "POST",
   "is_active": "ACTIVE"
 }

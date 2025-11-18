@@ -1,26 +1,38 @@
-import { DataTypes, Model } from "sequelize";
-import  sequelize  from "../database/connection";
+// src/models/technologist.ts
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../database/connection";
 
-export interface TechnologistI {
+export interface TechnologistAttrs {
   id?: number;
   nombre: string;
   especialidad: "RX" | "TAC" | "RM";
-  telefono: number;
+  telefono: string;
   correo: string;
   status: "ACTIVE" | "INACTIVE";
 }
 
-export class Technologist extends Model {
+
+type TechnologistCreationAttrs = Optional<TechnologistAttrs, "id" | "status">;
+
+export class Technologist
+  extends Model<TechnologistAttrs, TechnologistCreationAttrs>
+  implements TechnologistAttrs
+{
   public id!: number;
   public nombre!: string;
   public especialidad!: "RX" | "TAC" | "RM";
-  public telefono!: number;
+  public telefono!: string;
   public correo!: string;
   public status!: "ACTIVE" | "INACTIVE";
 }
 
 Technologist.init(
   {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -34,7 +46,7 @@ Technologist.init(
       allowNull: false,
       validate: {
         notEmpty: { msg: "Phone cannot be empty" },
-        len: { args: [7, 15], msg: "Phone must be between 7 and 15 digits" },
+        len: { args: [7, 20], msg: "Phone must be between 7 and 20 chars" },
       },
     },
     correo: {
@@ -57,3 +69,5 @@ Technologist.init(
     timestamps: false,
   }
 );
+
+export default Technologist;

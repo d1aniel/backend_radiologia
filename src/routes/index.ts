@@ -92,5 +92,8 @@ export class Routes {
 
     // rutas de autenticación
     this.authRoutes.routes(app);
+    
+    // rutas de informes
+    this.reportRoutes.routes(app);
   }
 }

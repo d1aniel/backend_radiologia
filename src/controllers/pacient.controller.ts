@@ -9,7 +9,7 @@ export class PatientController {
       const patients: PatientI[] = await Patient.findAll({
         where: { status: "ACTIVATE" },
       });
-      res.status(200).json({ patients });
+      res.status(200).json( patients );
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error fetching patients" });
@@ -26,7 +26,7 @@ export class PatientController {
 
       if (patient) {
         // el profe envuelve el resultado en un objeto
-        res.status(200).json({ patient });
+        res.status(200).json( patient );
       } else {
         res.status(404).json({ error: "Patient not found or inactive" });
       }

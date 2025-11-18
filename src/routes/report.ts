@@ -8,22 +8,22 @@ export class ReportRoutes {
 
   public routes(app: Application): void {
     // ================== RUTAS PÚBLICAS ==================
-    app.route("/api/informes/public")
-      .get(this.reportController.getAllReports)
-      .post(this.reportController.createReport);
+    // app.route("/api/informes/public")
+    //   .get(this.reportController.getAllReports)
+    //   .post(this.reportController.createReport);
 
-    app.route("/api/informes/public/:id")
-      .get(this.reportController.getReportById)
-      .patch(this.reportController.updateReport)
-      .delete(this.reportController.deleteReport);
+    // app.route("/api/informes/public/:id")
+    //   .get(this.reportController.getReportById)
+    //   .patch(this.reportController.updateReport)
+    //   .delete(this.reportController.deleteReport);
 
-    // ruta para eliminación lógica pública (si la quieres disponible sin auth)
-    app.route("/api/informes/public/:id/logic")
-      .delete(this.reportController.deleteReportAdv);
+    // // ruta para eliminación lógica pública (si la quieres disponible sin auth)
+    // app.route("/api/informes/public/:id/logic")
+    //   .delete(this.reportController.deleteReportAdv);
 
-    // firmar (público) — normalmente esto debería requerir auth, lo dejo por consistencia con pacientes
-    app.route("/api/informes/public/:id/sign")
-      .put(this.reportController.signReport);
+    // // firmar (público) — normalmente esto debería requerir auth, lo dejo por consistencia con pacientes
+    // app.route("/api/informes/public/:id/sign")
+    //   .put(this.reportController.signReport);
 
     // ================== RUTAS CON AUTENTICACIÓN ==================
     app.route("/api/informes")

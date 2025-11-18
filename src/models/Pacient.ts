@@ -1,10 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/connection";
-import { Study } from "./Studie"; // asegúrate que el archivo se llame Study.ts (o ajusta)
 
-/**
- * Modelo Patient (estilo profe)
- */
+
 export interface PatientI {
   id?: number;
   nombre: string;

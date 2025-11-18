@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
+import path from "path";                    // 👈 IMPORTANTE: agregar esto
 import { sequelize, testConnection, getDatabaseInfo } from "../database/connection";
 import "../models/associations"; 
 import { Routes } from "../routes";
@@ -17,9 +18,8 @@ export class App {
     this.app = express();
     this.routesProvider = new Routes();
     this.settings();
-    this.middlewares();
+    this.middlewares();   // 👈 el orden importa
     this.routes();
-    
   }
 
   private settings(): void {
@@ -31,6 +31,13 @@ export class App {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
+
+    
+    this.app.use(
+      "/uploads",
+      express.static(path.join(process.cwd(), "uploads"))
+    );
+    
   }
 
   private routes(): void {
@@ -47,7 +54,15 @@ export class App {
         throw new Error("Test de conexión fallido");
       }
 
-      await sequelize.sync({ force: false });
+      const shouldAlterSchema = String(process.env.DB_SYNC_ALTER || "true").toLowerCase() === "true";
+      if (shouldAlterSchema) {
+        console.log("🛠  Sincronizando con alter para actualizar el esquema");
+      }
+
+      await sequelize.sync({
+        force: false,
+        alter: shouldAlterSchema ? { drop: false } : false,
+      });
       console.log("📦 Base de datos sincronizada exitosamente");
     } catch (error) {
       console.error("❌ Error al conectar con la base de datos:", error);
@@ -55,12 +70,8 @@ export class App {
     }
   }
 
-  /**
-   * Método de inicialización público: conecta la BD antes de arrancar el servidor.
-   */
   public async init(): Promise<void> {
     await this.dbConnection();
-    // cualquier otra inicialización que necesites
   }
 
   public async listen(): Promise<void> {
