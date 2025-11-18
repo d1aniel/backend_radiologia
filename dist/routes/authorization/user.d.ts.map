@@ -1,0 +1,1 @@
+{"version":3,"file":"user.d.ts","sourceRoot":"","sources":["../../../src/routes/authorization/user.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,SAAS,CAAC;AACtC,OAAO,EAAE,cAAc,EAAE,MAAM,mCAAmC,CAAC;AAEnE,qBAAa,UAAU;IACd,cAAc,EAAE,cAAc,CAAwB;IAEtD,MAAM,CAAC,GAAG,EAAE,WAAW,GAAG,IAAI;CAItC"}

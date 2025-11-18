@@ -1,9 +1,9 @@
-// src/controllers/doctor.controller.ts
+
 import { Request, Response } from "express";
-import { Doctor, DoctorI } from "../models/Doctor"; // ajusta la ruta si tu archivo se llama diferente
+import { Doctor, DoctorI } from "../models/Doctor"; 
 
 export class DoctorController {
-  // Get all doctors with status "ACTIVATE"
+  
   public async getAllDoctors(req: Request, res: Response) {
     try {
       const doctors: DoctorI[] = await Doctor.findAll({
@@ -16,7 +16,7 @@ export class DoctorController {
     }
   }
 
-  // Get a doctor by ID (only if ACTIVATE)
+  
   public async getDoctorById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -35,7 +35,7 @@ export class DoctorController {
     }
   }
 
-  // Create a new doctor (status default ACTIVATE)
+  
   public async createDoctor(req: Request, res: Response) {
     const { nombre, especialidad, telefono, correo, registro, status } = req.body;
 
@@ -46,7 +46,7 @@ export class DoctorController {
         telefono: String(telefono),
         correo,
         registro: registro || null,
-        // forzamos ACTIVATE en caso de que venga otro valor (coincide con frontend)
+        
         status: "ACTIVATE",
       };
 
@@ -54,7 +54,7 @@ export class DoctorController {
       res.status(201).json(newDoctor);
     } catch (error: any) {
       console.error(error);
-      // Manejo simple de errores provenientes de Sequelize
+      
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(409).json({ error: "Correo ya registrado" });
       }
@@ -66,7 +66,7 @@ export class DoctorController {
     }
   }
 
-  // Update a doctor (only if ACTIVATE)
+  
   public async updateDoctor(req: Request, res: Response) {
     const { id: pk } = req.params;
     const { nombre, especialidad, telefono, correo, registro, status } = req.body;
@@ -103,7 +103,7 @@ export class DoctorController {
     }
   }
 
-  // Delete a doctor physically (destroy)
+  
   public async deleteDoctor(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -121,7 +121,7 @@ export class DoctorController {
     }
   }
 
-  // Delete a doctor logically (mark status = INACTIVE)
+  
   public async deleteDoctorAdv(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

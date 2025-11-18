@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TechnologistController = void 0;
 const Technologist_1 = require("../models/Technologist");
 class TechnologistController {
-    // Obtener todos los tecnólogos activos
     getAllTechnologists(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -22,11 +21,11 @@ class TechnologistController {
                 res.status(200).json({ technologists });
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching technologists" });
             }
         });
     }
-    // Obtener un tecnólogo por ID
     getTechnologistById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -35,62 +34,104 @@ class TechnologistController {
                     where: { id: pk, status: "ACTIVE" },
                 });
                 if (technologist) {
-                    res.status(200).json(technologist);
+                    res.status(200).json({ technologist });
                 }
                 else {
                     res.status(404).json({ error: "Technologist not found or inactive" });
                 }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching technologist" });
             }
         });
     }
-    // Crear un nuevo tecnólogo
     createTechnologist(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { nombre, especialidad, telefono, correo, status } = req.body;
             try {
-                const body = req.body;
-                const technologist = yield Technologist_1.Technologist.create(body);
-                res.status(201).json(technologist);
+                const body = {
+                    nombre,
+                    especialidad,
+                    telefono,
+                    correo,
+                    status,
+                };
+                const newTechnologist = yield Technologist_1.Technologist.create(Object.assign({}, body));
+                res.status(201).json(newTechnologist);
             }
             catch (error) {
-                res.status(500).json({ error: "Error creating technologist" });
+                console.error(error);
+                res.status(400).json({ error: error.message });
             }
         });
     }
-    // Actualizar un tecnólogo por ID
     updateTechnologist(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { id: pk } = req.params;
+            const { nombre, especialidad, telefono, correo, status } = req.body;
             try {
-                const { id: pk } = req.params;
-                const body = req.body;
-                const technologist = yield Technologist_1.Technologist.findByPk(pk);
-                if (!technologist) {
-                    return res.status(404).json({ error: "Technologist not found" });
+                const body = {
+                    nombre,
+                    especialidad,
+                    telefono,
+                    correo,
+                    status,
+                };
+                const technologistExist = yield Technologist_1.Technologist.findOne({
+                    where: { id: pk, status: "ACTIVE" },
+                });
+                if (technologistExist) {
+                    yield technologistExist.update(body, { where: { id: pk } });
+                    res.status(200).json(technologistExist);
                 }
-                yield technologist.update(body);
-                res.status(200).json(technologist);
+                else {
+                    res.status(404).json({ error: "Technologist not found or inactive" });
+                }
             }
             catch (error) {
-                res.status(500).json({ error: "Error updating technologist" });
+                console.error(error);
+                res.status(400).json({ error: error.message });
             }
         });
     }
-    // Eliminar (cambiar status a INACTIVE)
     deleteTechnologist(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const technologist = yield Technologist_1.Technologist.findByPk(pk);
-                if (!technologist) {
-                    return res.status(404).json({ error: "Technologist not found" });
+                const { id } = req.params;
+                const technologistToDelete = yield Technologist_1.Technologist.findByPk(id);
+                if (technologistToDelete) {
+                    yield technologistToDelete.destroy();
+                    res.status(200).json({ message: "Technologist deleted successfully" });
                 }
-                yield technologist.update({ status: "INACTIVE" });
-                res.status(200).json({ message: "Technologist set to INACTIVE" });
+                else {
+                    res.status(404).json({ error: "Technologist not found" });
+                }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error deleting technologist" });
+            }
+        });
+    }
+    deleteTechnologistAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const technologistToUpdate = yield Technologist_1.Technologist.findOne({
+                    where: { id: pk, status: "ACTIVE" },
+                });
+                if (technologistToUpdate) {
+                    yield technologistToUpdate.update({ status: "INACTIVE" });
+                    res.status(200).json({ message: "Technologist marked as inactive" });
+                }
+                else {
+                    res.status(404).json({ error: "Technologist not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error marking technologist as inactive" });
             }
         });
     }

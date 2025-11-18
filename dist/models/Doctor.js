@@ -4,14 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Doctor = void 0;
-// src/models/doctor.ts
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../database/connection"));
 class Doctor extends sequelize_1.Model {
 }
 exports.Doctor = Doctor;
 Doctor.init({
-    // Sequelize crea 'id' automáticamente (INTEGER, PK, autoIncrement) si no lo defines.
     nombre: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
@@ -48,9 +46,7 @@ Doctor.init({
     },
     registro: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true, // opcional
-        // Si quieres que no se repita cuando esté presente, descomenta la línea siguiente:
-        // unique: true,
+        allowNull: true,
     },
     status: {
         type: sequelize_1.DataTypes.ENUM("ACTIVATE", "INACTIVE"),
@@ -61,10 +57,8 @@ Doctor.init({
     modelName: "Doctor",
     tableName: "doctors",
     timestamps: false,
-    // Opcional: índices recomendados
     indexes: [
         { unique: true, fields: ["correo"] },
-        // Si activas unique en 'registro', este índice no es necesario
     ],
 });
 exports.default = Doctor;

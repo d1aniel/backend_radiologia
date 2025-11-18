@@ -18,8 +18,8 @@ import { RoleUser } from "./authorization/RoleUser";
 import { Resource } from "./authorization/Resource";
 import { ResourceRole } from "./authorization/ResourceRole";
 
-/* === relaciones ya existentes === */
-// Paciente -> Estudios
+
+
 Patient.hasMany(Study, {
   foreignKey: "patient_id",
   sourceKey: "id",
@@ -30,7 +30,7 @@ Study.belongsTo(Patient, {
   as: "patient",
 });
 
-// Estudio -> Imágenes
+
 Study.hasMany(Image, {
   sourceKey: "id",
   foreignKey: "estudioId",
@@ -42,7 +42,7 @@ Image.belongsTo(Study, {
   as: "estudio",
 });
 
-// Estudios <-> Labels (muchos a muchos)
+
 Study.belongsToMany(Label, {
   through: StudyLabel,
   foreignKey: "study_id",
@@ -56,7 +56,7 @@ Label.belongsToMany(Study, {
   as: "studies",
 });
 
-// Doctor -> Estudios
+
 Doctor.hasMany(Study, {
   foreignKey: "medico_id",
   sourceKey: "id",
@@ -67,7 +67,7 @@ Study.belongsTo(Doctor, {
   as: "doctor",
 });
 
-// Doctor -> Reportes
+
 Doctor.hasMany(Report, {
   foreignKey: "medico_id",
   sourceKey: "id",
@@ -78,7 +78,7 @@ Report.belongsTo(Doctor, {
   as: "firmante",
 });
 
-// Technologist -> Estudios
+
 Technologist.hasMany(Study, {
   foreignKey: "technologist_id",
   sourceKey: "id",
@@ -89,7 +89,7 @@ Study.belongsTo(Technologist, {
   as: "technologist_user",
 });
 
-// Modalidad -> Estudios
+
 Modalidad.hasMany(Study, {
   foreignKey: "modality_id",
   sourceKey: "id",
@@ -100,7 +100,7 @@ Study.belongsTo(Modalidad, {
   as: "modalidad_obj",
 });
 
-// Team -> Estudios
+
 Team.hasMany(Study, {
   foreignKey: "team_id",
   sourceKey: "id",
@@ -111,7 +111,7 @@ Study.belongsTo(Team, {
   as: "team_obj",
 });
 
-// Modalidad -> Team
+
 Modalidad.hasMany(Team, {
   foreignKey: "modality_id",
   sourceKey: "id",
@@ -122,7 +122,7 @@ Team.belongsTo(Modalidad, {
   as: "modalidad_obj",
 });
 
-// Quote -> Estudios
+
 Quote.hasMany(Study, {
   foreignKey: "quote_id",
   sourceKey: "id",
@@ -133,7 +133,7 @@ Study.belongsTo(Quote, {
   as: "cita_obj",
 });
 
-// Patient -> Quote
+
 Patient.hasMany(Quote, {
   foreignKey: "patient_id",
   sourceKey: "id",
@@ -144,7 +144,7 @@ Quote.belongsTo(Patient, {
   as: "paciente_obj",
 });
 
-// Payments -> Patient
+
 Patient.hasMany(Payment, {
   foreignKey: "patient_id",
   sourceKey: "id",
@@ -154,7 +154,7 @@ Payment.belongsTo(Patient, {
   targetKey: "id",
 });
 
-// Payments -> Quote
+
 Quote.hasMany(Payment, {
   foreignKey: "quote_id",
   sourceKey: "id",
@@ -164,7 +164,7 @@ Payment.belongsTo(Quote, {
   targetKey: "id",
 });
 
-/* === módulo de autorización === */
+
 
 User.hasMany(RefreshToken, {
   foreignKey: "user_id",
@@ -211,9 +211,9 @@ ResourceRole.belongsTo(Role, {
   targetKey: "id",
 });
 
-/* === asociaciones N:N === */
 
-// Doctor <-> Modalidad
+
+
 Doctor.belongsToMany(Modalidad, {
   through: "doctor_modalidades",
   foreignKey: "doctor_id",
@@ -227,7 +227,7 @@ Modalidad.belongsToMany(Doctor, {
   as: "doctores",
 });
 
-// Technologist <-> Team
+
 Technologist.belongsToMany(Team, {
   through: "technologist_teams",
   foreignKey: "technologist_id",
@@ -241,7 +241,7 @@ Team.belongsToMany(Technologist, {
   as: "technologists",
 });
 
-// Technologist -> Quote
+
 Technologist.hasMany(Quote, {
   foreignKey: "technologist_id",
   sourceKey: "id",
@@ -254,7 +254,7 @@ Quote.belongsTo(Technologist, {
   as: "technologist_obj", 
 });
 
-// Study -> Report (1:1)
+
 Study.hasOne(Report, {
   foreignKey: "estudio_id", 
   sourceKey: "id",

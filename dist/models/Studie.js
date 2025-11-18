@@ -10,30 +10,39 @@ class Study extends sequelize_1.Model {
 }
 exports.Study = Study;
 Study.init({
-    // columna FK: patient_id (debe coincidir exactamente con foreignKey en relaciones)
+    id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
     patient_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
     },
-    modalidad: {
-        type: sequelize_1.DataTypes.STRING(50),
+    modality_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
     },
-    equipo: {
-        type: sequelize_1.DataTypes.STRING(100),
+    team_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
     },
-    tecnologo: {
-        type: sequelize_1.DataTypes.STRING(100),
+    technologist_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
     },
-    medico: {
-        type: sequelize_1.DataTypes.STRING(100),
+    medico_id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+    },
+    quote_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
     },
     fechaHora: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
+        field: "fechaHora",
     },
     prioridad: {
         type: sequelize_1.DataTypes.ENUM("BAJA", "MEDIA", "ALTA", "URGENTE"),
@@ -46,12 +55,31 @@ Study.init({
     },
     status: {
         type: sequelize_1.DataTypes.ENUM("ACTIVE", "INACTIVE"),
+        allowNull: false,
         defaultValue: "ACTIVE",
+    },
+    modalidad: {
+        type: sequelize_1.DataTypes.STRING(100),
+        allowNull: false,
+    },
+    equipo: {
+        type: sequelize_1.DataTypes.STRING(100),
+        allowNull: false,
+    },
+    medico: {
+        type: sequelize_1.DataTypes.STRING(150),
+        allowNull: true,
+    },
+    tecnologo: {
+        type: sequelize_1.DataTypes.STRING(150),
+        allowNull: true,
     },
 }, {
     sequelize: connection_1.default,
     modelName: "Study",
     tableName: "studies",
     timestamps: false,
+    underscored: true,
 });
+exports.default = Study;
 //# sourceMappingURL=Studie.js.map

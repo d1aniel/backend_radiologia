@@ -39,61 +39,61 @@ export class Routes {
   public authRoutes: AuthRoutes = new AuthRoutes(); 
 
   public routes(app: Application): void {
-    // rutas de pacientes
+    
     this.patientRoutes.routes(app);
 
-    // rutas de doctores
+    
     this.doctorRoutes.routes(app);
 
-    // rutas de imágenes
+    
     this.imageRoutes.routes(app);
 
-    // rutas de etiquetas
+    
     this.labelRoutes.routes(app);
 
-    // rutas de modalidades
+    
     this.modalidadRoutes.routes(app);
 
-    // rutas de pagos
+    
     this.paymentRoutes.routes(app);
 
-    // rutas de citas
+    
     this.quoteRoutes.routes(app);
 
-    // rutas de informe
+    
     this.quoteRoutes.routes(app)
 
-    // rutas de equipos
+    
     this.teamRoutes.routes(app);
 
-    // rutas de estudios
+    
     this.studyRoutes.routes(app);
 
-    // rutas de tecnólogos
+    
     this.technologistRoutes.routes(app);
 
-    // rutas de usuarios
+    
     this.userRoutes.routes(app);
 
-    // rutas de roles
+    
     this.roleRoutes.routes(app);
 
-    // rutas de roleUsers
+    
     this.roleUserRoutes.routes(app);
 
-    // rutas de resources
+    
     this.resourceRoutes.routes(app);
 
-    // rutas de resourceRoles
+    
     this.resourceRoleRoutes.routes(app);
 
-    // rutas de refreshTokens
+    
     this.refreshTokenRoutes.routes(app);
 
-    // rutas de autenticación
+    
     this.authRoutes.routes(app);
     
-    // rutas de informes
+    
     this.reportRoutes.routes(app);
   }
 }

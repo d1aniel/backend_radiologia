@@ -3,7 +3,7 @@ import sequelize from "../database/connection";
 
 export type Prioridad = "BAJA" | "MEDIA" | "ALTA" | "URGENTE";
 
-// === Atributos que existen en la TABLA (con FKs) ===
+
 export interface StudyAttrs {
   id: number;
 
@@ -27,7 +27,7 @@ export interface StudyAttrs {
   tecnologo?: string | null;  
 }
 
-// Campos opcionales al crear
+
 type StudyCreationAttrs = Optional<
   StudyAttrs,
   | "id"
@@ -137,12 +137,12 @@ Study.init(
 
     medico: {
       type: DataTypes.STRING(150),
-      allowNull: true,      // 👈 puede ser null
+      allowNull: true,      
     },
 
     tecnologo: {
       type: DataTypes.STRING(150),
-      allowNull: true,      // 👈 puede ser null
+      allowNull: true,      
     },
   },
   {

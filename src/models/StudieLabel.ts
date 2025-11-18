@@ -1,4 +1,4 @@
-// src/models/StudyLabel.ts
+
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/connection';
 
@@ -42,7 +42,7 @@ StudyLabel.init(
     tableName: 'study_labels',
     timestamps: false,
     indexes: [
-      { unique: true, fields: ['study_id', 'label_id'] }, // evita duplicados
+      { unique: true, fields: ['study_id', 'label_id'] }, 
       { fields: ['label_id'] }
     ],
   }

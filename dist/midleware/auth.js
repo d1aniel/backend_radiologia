@@ -34,28 +34,22 @@ const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         return;
     }
     try {
-        // Verificar si el token principal es válido
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "secret");
-        // Buscar el usuario en la base de datos
         const user = yield User_1.User.findOne({ where: { id: decoded.id, is_active: true } });
         if (!user) {
             res.status(401).json({ error: "Usuario no encontrado o inactivo." });
             return;
         }
-        // Obtener el último registro de refresh_token para este usuario
         const lastRefreshToken = yield RefreshToken_1.RefreshToken.findOne({
             where: { user_id: user.id },
-            order: [["created_at", "DESC"]], // Ordenar por fecha de creación descendente
+            order: [["created_at", "DESC"]],
         });
         if (!lastRefreshToken) {
             res.status(401).json({ error: "No se encontró un refresh token válido." });
             return;
         }
-        // Verificar si el último refresh_token ha expirado
         if (lastRefreshToken.expires_at < new Date()) {
-            // El refresh_token ha expirado, generar uno nuevo
             const { token: newRefreshToken, expiresAt } = user.generateRefreshToken();
-            // Crear un nuevo registro en la tabla refresh_tokens
             yield RefreshToken_1.RefreshToken.create({
                 user_id: user.id,
                 token: newRefreshToken,
@@ -63,18 +57,14 @@ const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 is_valid: true,
                 expires_at: expiresAt,
             });
-            // Invalidar el refresh_token anterior
             yield lastRefreshToken.update({ is_valid: false });
-            // Enviar el nuevo refresh_token en el encabezado
             res.setHeader("x-reset-token", newRefreshToken);
         }
-        // Validar autorización
         const isAuthorized = yield (0, exports.validateAuthorization)(decoded.id, currentRoute, currentMethod);
         if (!isAuthorized) {
             res.status(403).json({ error: "No está autorizado para ejecutar esta petición." });
             return;
         }
-        // Continuar con la solicitud
         next();
     }
     catch (error) {
@@ -92,19 +82,16 @@ const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.authMiddleware = authMiddleware;
 const validateAuthorization = (userId, resourcePath, resourceMethod) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Obtener todos los recursos activos que coincidan con el método
         const resources = yield Resource_1.Resource.findAll({
             where: { method: resourceMethod, is_active: "ACTIVE" },
         });
-        // Convertir las rutas dinámicas a expresiones regulares y buscar coincidencias
         const matchingResource = resources.find((resource) => {
             const { regexp } = (0, path_to_regexp_1.pathToRegexp)(resource.path);
             return regexp.test(resourcePath);
         });
         if (!matchingResource) {
-            return false; // No hay coincidencias para la ruta y el método
+            return false;
         }
-        // Verificar si existe una relación válida entre el usuario, su rol y el recurso solicitado
         const resourceRole = yield ResourceRole_1.ResourceRole.findOne({
             include: [
                 {
@@ -112,15 +99,15 @@ const validateAuthorization = (userId, resourcePath, resourceMethod) => __awaite
                     include: [
                         {
                             model: RoleUser_1.RoleUser,
-                            where: { user_id: userId, is_active: "ACTIVE" }, // Validar que el usuario esté asociado al rol
+                            where: { user_id: userId, is_active: "ACTIVE" },
                         },
                     ],
-                    where: { is_active: "ACTIVE" }, // Validar que el rol esté activo
+                    where: { is_active: "ACTIVE" },
                 },
             ],
-            where: { resource_id: matchingResource.id, is_active: "ACTIVE" }, // Validar que la relación resource_role esté activa
+            where: { resource_id: matchingResource.id, is_active: "ACTIVE" },
         });
-        return !!resourceRole; // Retorna true si se encuentra un registro coincidente
+        return !!resourceRole;
     }
     catch (error) {
         console.error("Error al validar la autorización:", error);

@@ -1,0 +1,1 @@
+{"version":3,"file":"resource.d.ts","sourceRoot":"","sources":["../../../src/routes/authorization/resource.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,SAAS,CAAC;AACtC,OAAO,EAAE,kBAAkB,EAAE,MAAM,uCAAuC,CAAC;AAG3E,qBAAa,cAAc;IAClB,kBAAkB,EAAE,kBAAkB,CAA4B;IAElE,MAAM,CAAC,GAAG,EAAE,WAAW,GAAG,IAAI;CA2BtC"}

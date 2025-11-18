@@ -1,4 +1,4 @@
-// src/models/team.ts
+
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/connection";
 

@@ -1,4 +1,4 @@
-// src/database/connection.ts
+
 import { Dialect, Options, Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
@@ -74,7 +74,7 @@ const buildConfig = (): DBConfig => {
         },
       };
 
-    default: // mysql
+    default: 
       return {
         database: process.env.DB_NAME || process.env.MYSQL_NAME || "test",
         username: process.env.DB_USER || process.env.MYSQL_USER || "root",
@@ -91,15 +91,12 @@ const selectedConfig = buildConfig();
 
 console.log(`🔌 Conectando a base de datos: ${engine.toUpperCase()}`);
 
-/**
- * Resuelve el valor de logging. Aseguramos devolver algo definido
- * cuando lo vamos a añadir al objeto final.
- */
+
 const resolveLogging = (): Options["logging"] | undefined => {
   if (typeof selectedConfig.logging !== "undefined") {
     return selectedConfig.logging;
   }
-  // Default: en development mostrar queries, en prod false
+  
   return process.env.NODE_ENV === "development" ? console.log : false;
 };
 
@@ -113,7 +110,7 @@ const resolvePoolValue = <K extends keyof NonNullable<Options["pool"]>>(key: K, 
   return fallback;
 };
 
-// Construcción segura del objeto de opciones
+
 const partialOptions: Partial<Options> = {
   dialect: selectedConfig.dialect,
   pool: {
@@ -124,19 +121,19 @@ const partialOptions: Partial<Options> = {
   },
 };
 
-// Añadir logging sólo si no es undefined
+
 const loggingValue = resolveLogging();
 if (typeof loggingValue !== "undefined") {
   partialOptions.logging = loggingValue;
 }
 
-// Añadir otras propiedades condicionalmente
+
 if (selectedConfig.host) partialOptions.host = selectedConfig.host;
 if (typeof selectedConfig.port !== "undefined") partialOptions.port = selectedConfig.port;
 if (selectedConfig.timezone) partialOptions.timezone = selectedConfig.timezone;
 if (selectedConfig.dialectOptions) partialOptions.dialectOptions = selectedConfig.dialectOptions;
 
-// Convertir a Options al pasar a Sequelize (seguro porque controlamos qué propiedades existen)
+
 const sequelizeOptions = partialOptions as Options;
 
 const sequelize = new Sequelize(
@@ -146,9 +143,7 @@ const sequelize = new Sequelize(
   sequelizeOptions
 );
 
-/**
- * Devuelve información útil para logging/debug.
- */
+
 export const getDatabaseInfo = () => ({
   engine,
   config: {
@@ -161,9 +156,7 @@ export const getDatabaseInfo = () => ({
   connectionString: `${selectedConfig.dialect}://${selectedConfig.username}@${selectedConfig.host}:${selectedConfig.port}/${selectedConfig.database}`,
 });
 
-/**
- * Prueba la conexión con authenticate(). Devuelve true si ok.
- */
+
 export const testConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();

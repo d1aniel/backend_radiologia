@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoleController = void 0;
 const Role_1 = require("../models/authorization/Role");
 class RoleController {
-    // Obtener todos los roles
     getAllRoles(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -24,7 +23,6 @@ class RoleController {
             }
         });
     }
-    // Obtener un rol por ID
     getRoleById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -42,7 +40,6 @@ class RoleController {
             }
         });
     }
-    // Crear un nuevo rol
     createRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, is_active } = req.body;
@@ -55,7 +52,6 @@ class RoleController {
             }
         });
     }
-    // Actualizar un rol
     updateRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -75,7 +71,6 @@ class RoleController {
             }
         });
     }
-    // Eliminar un rol físicamente
     deleteRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -94,7 +89,6 @@ class RoleController {
             }
         });
     }
-    // Eliminar un rol lógicamente
     deleteRoleAdv(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;

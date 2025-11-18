@@ -1,4 +1,4 @@
-// src/routes/payment.routes.ts
+
 import { Application } from "express";
 import { PaymentController } from "../controllers/payment.controller";
 import { authMiddleware } from "../middleware/auth";
@@ -7,7 +7,7 @@ export class PaymentRoutes {
   public paymentController: PaymentController = new PaymentController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/pagos/public")
       .get(this.paymentController.getAllPayments)
       .post(this.paymentController.createPayment);

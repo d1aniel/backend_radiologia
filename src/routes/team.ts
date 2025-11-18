@@ -1,4 +1,4 @@
-// src/routes/team.routes.ts
+
 import { Application } from "express";
 import { TeamController } from "../controllers/team.controller";
 import { authMiddleware } from "../middleware/auth";
@@ -7,7 +7,7 @@ export class TeamRoutes {
   public teamController: TeamController = new TeamController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/equipos/public")
       .get(this.teamController.getAllTeams)
       .post(this.teamController.createTeam);

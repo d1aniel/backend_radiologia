@@ -10,22 +10,20 @@ class Quote extends sequelize_1.Model {
 }
 exports.Quote = Quote;
 Quote.init({
-    paciente: {
-        type: sequelize_1.DataTypes.STRING,
+    patient_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
-        validate: {
-            notEmpty: { msg: "El paciente es obligatorio" },
-        },
+    },
+    technologist_id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
     },
     modalidad: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
     equipo: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    tecnologo: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },

@@ -1,0 +1,1 @@
+{"version":3,"file":"role.d.ts","sourceRoot":"","sources":["../../../src/routes/authorization/role.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,SAAS,CAAC;AACtC,OAAO,EAAE,cAAc,EAAE,MAAM,mCAAmC,CAAC;AAGnE,qBAAa,UAAU;IACd,cAAc,EAAE,cAAc,CAAwB;IAEtD,MAAM,CAAC,GAAG,EAAE,WAAW,GAAG,IAAI;CA2BtC"}

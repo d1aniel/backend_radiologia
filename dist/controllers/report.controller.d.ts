@@ -5,6 +5,7 @@ export declare class ReportController {
     createReport(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     updateReport(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     signReport(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
-    deleteReport(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
+    deleteReport(req: Request, res: Response): Promise<void>;
+    deleteReportAdv(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=report.controller.d.ts.map

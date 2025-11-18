@@ -1,4 +1,4 @@
-// src/models/Quote.ts
+
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/connection";
 
@@ -32,26 +32,26 @@ export class Quote extends Model implements QuoteI {
 
 Quote.init(
   {
-    // 🔥 FK al paciente
+    
     patient_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      // opcionalmente puedes activar referencias:
-      // references: {
-      //   model: "patients",
-      //   key: "id",
-      // },
+      
+      
+      
+      
+      
     },
 
-    // 🔥 FK al tecnólogo
+    
     technologist_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: null,
-      // references: {
-      //   model: "technologists",
-      //   key: "id",
-      // },
+      
+      
+      
+      
     },
 
     modalidad: {

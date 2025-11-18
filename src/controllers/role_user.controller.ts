@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { RoleUser, RoleUserI } from '../models/authorization/RoleUser';
 
 export class RoleUserController {
-  // Obtener todos los RoleUsers
+  
   public async getAllRoleUsers(req: Request, res: Response): Promise<void> {
     try {
       const roleUsers: RoleUserI[] = await RoleUser.findAll();
@@ -12,7 +12,7 @@ export class RoleUserController {
     }
   }
 
-  // Obtener un RoleUser por ID
+  
   public async getRoleUserById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -27,7 +27,7 @@ export class RoleUserController {
     }
   }
 
-  // Crear un nuevo RoleUser
+  
   public async createRoleUser(req: Request, res: Response): Promise<void> {
     const { role_id, user_id, is_active } = req.body;
     try {
@@ -38,7 +38,7 @@ export class RoleUserController {
     }
   }
 
-  // Actualizar un RoleUser
+  
   public async updateRoleUser(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const { role_id, user_id, is_active } = req.body;
@@ -55,7 +55,7 @@ export class RoleUserController {
     }
   }
 
-  // Eliminar un RoleUser físicamente
+  
   public async deleteRoleUser(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {
@@ -71,7 +71,7 @@ export class RoleUserController {
     }
   }
 
-  // Eliminar un RoleUser lógicamente
+  
   public async deleteRoleUserAdv(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {

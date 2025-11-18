@@ -12,85 +12,125 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModalidadController = void 0;
 const Modalitie_1 = require("../models/Modalitie");
 class ModalidadController {
-    // Obtener todas las modalidades activas
     getAllModalidades(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const modalidades = yield Modalitie_1.Modalidad.findAll({
                     where: { activa: true },
                 });
-                res.status(200).json({ modalidades });
+                return res.status(200).json({ modalidades });
             }
             catch (error) {
-                res.status(500).json({ error: "Error fetching modalidades" });
+                console.error("[getAllModalidades] ", error);
+                return res.status(500).json({ error: "Error fetching modalidades" });
             }
         });
     }
-    // Obtener modalidad por ID
     getModalidadById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
+                const id = Number(req.params.id);
+                if (Number.isNaN(id))
+                    return res.status(400).json({ error: "Invalid id" });
                 const modalidad = yield Modalitie_1.Modalidad.findOne({
-                    where: { id: pk, activa: true },
+                    where: { id, activa: true },
                 });
                 if (modalidad) {
-                    res.status(200).json(modalidad);
+                    return res.status(200).json({ modalidad });
                 }
                 else {
-                    res.status(404).json({ error: "Modalidad not found or inactive" });
+                    return res.status(404).json({ error: "Modalidad not found or inactive" });
                 }
             }
             catch (error) {
-                res.status(500).json({ error: "Error fetching modalidad" });
+                console.error("[getModalidadById] ", error);
+                return res.status(500).json({ error: "Error fetching modalidad" });
             }
         });
     }
-    // Crear nueva modalidad
     createModalidad(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const body = req.body;
+                const { nombre, descripcion, activa } = req.body;
+                if (!nombre || String(nombre).trim().length < 2) {
+                    return res.status(400).json({ error: "Nombre es obligatorio (mín 2 caracteres)" });
+                }
+                if (!descripcion || String(descripcion).trim().length < 5) {
+                    return res.status(400).json({ error: "Descripción es obligatoria (mín 5 caracteres)" });
+                }
+                const body = {
+                    nombre: String(nombre).trim(),
+                    descripcion: String(descripcion).trim(),
+                    activa: typeof activa === "boolean" ? activa : true
+                };
                 const modalidad = yield Modalitie_1.Modalidad.create(body);
-                res.status(201).json(modalidad);
+                return res.status(201).json({ modalidad });
             }
             catch (error) {
-                res.status(500).json({ error: "Error creating modalidad" });
+                console.error("[createModalidad] ", error);
+                return res.status(400).json({ error: (_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Error creating modalidad" });
             }
         });
     }
-    // Actualizar modalidad por ID
     updateModalidad(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
+                const id = Number(req.params.id);
+                if (Number.isNaN(id))
+                    return res.status(400).json({ error: "Invalid id" });
                 const body = req.body;
-                const modalidad = yield Modalitie_1.Modalidad.findByPk(pk);
-                if (!modalidad) {
+                const modalidad = yield Modalitie_1.Modalidad.findByPk(id);
+                if (!modalidad)
                     return res.status(404).json({ error: "Modalidad not found" });
+                if (body.nombre && String(body.nombre).trim().length < 2) {
+                    return res.status(400).json({ error: "Nombre inválido (mín 2 caracteres)" });
                 }
-                yield modalidad.update(body);
-                res.status(200).json(modalidad);
+                if (body.descripcion && String(body.descripcion).trim().length < 5) {
+                    return res.status(400).json({ error: "Descripción inválida (mín 5 caracteres)" });
+                }
+                yield modalidad.update(Object.assign(Object.assign(Object.assign({}, (body.nombre !== undefined ? { nombre: String(body.nombre).trim() } : {})), (body.descripcion !== undefined ? { descripcion: String(body.descripcion).trim() } : {})), (body.activa !== undefined ? { activa: Boolean(body.activa) } : {})));
+                return res.status(200).json({ modalidad });
             }
             catch (error) {
-                res.status(500).json({ error: "Error updating modalidad" });
+                console.error("[updateModalidad] ", error);
+                return res.status(500).json({ error: "Error updating modalidad" });
             }
         });
     }
-    // Eliminar (cambiar activa a false)
     deleteModalidad(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const modalidad = yield Modalitie_1.Modalidad.findByPk(pk);
-                if (!modalidad) {
+                const id = Number(req.params.id);
+                if (Number.isNaN(id))
+                    return res.status(400).json({ error: "Invalid id" });
+                const modalidad = yield Modalitie_1.Modalidad.findByPk(id);
+                if (!modalidad)
                     return res.status(404).json({ error: "Modalidad not found" });
-                }
                 yield modalidad.update({ activa: false });
-                res.status(200).json({ message: "Modalidad set to INACTIVE" });
+                return res.status(200).json({ message: "Modalidad marked as inactive" });
             }
             catch (error) {
-                res.status(500).json({ error: "Error deleting modalidad" });
+                console.error("[deleteModalidad] ", error);
+                return res.status(500).json({ error: "Error deleting modalidad" });
+            }
+        });
+    }
+    deleteModalidadAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const id = Number(req.params.id);
+                if (Number.isNaN(id))
+                    return res.status(400).json({ error: "Invalid id" });
+                const modalidad = yield Modalitie_1.Modalidad.findOne({ where: { id, activa: true } });
+                if (!modalidad)
+                    return res.status(404).json({ error: "Modalidad not found or already inactive" });
+                yield modalidad.update({ activa: false });
+                return res.status(200).json({ message: "Modalidad marked as inactive" });
+            }
+            catch (error) {
+                console.error("[deleteModalidadAdv] ", error);
+                return res.status(500).json({ error: "Error marking modalidad as inactive" });
             }
         });
     }

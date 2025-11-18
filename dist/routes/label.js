@@ -2,21 +2,30 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LabelRoutes = void 0;
 const label_controller_1 = require("../controllers/label.controller");
+const auth_1 = require("../middleware/auth");
 class LabelRoutes {
     constructor() {
         this.labelController = new label_controller_1.LabelController();
     }
     routes(app) {
-        // Obtener todas las etiquetas activas
-        app.route("/labels").get(this.labelController.getAllLabels);
-        // Obtener una etiqueta por ID
-        app.route("/labels/:id").get(this.labelController.getLabelById);
-        // Crear una nueva etiqueta
-        app.route("/labels").post(this.labelController.createLabel);
-        // Actualizar una etiqueta por ID
-        app.route("/labels/:id").put(this.labelController.updateLabel);
-        // Eliminar (status = INACTIVE)
-        app.route("/labels/:id").delete(this.labelController.deleteLabel);
+        app.route("/api/etiquetas/public")
+            .get(this.labelController.getAllLabels)
+            .post(this.labelController.createLabel);
+        app.route("/api/etiquetas/public/:id")
+            .get(this.labelController.getLabelById)
+            .patch(this.labelController.updateLabel)
+            .delete(this.labelController.deleteLabel);
+        app.route("/api/etiquetas/public/:id/logic")
+            .delete(this.labelController.deleteLabelAdv);
+        app.route("/api/etiquetas")
+            .get(auth_1.authMiddleware, this.labelController.getAllLabels)
+            .post(auth_1.authMiddleware, this.labelController.createLabel);
+        app.route("/api/etiquetas/:id")
+            .get(auth_1.authMiddleware, this.labelController.getLabelById)
+            .patch(auth_1.authMiddleware, this.labelController.updateLabel)
+            .delete(auth_1.authMiddleware, this.labelController.deleteLabel);
+        app.route("/api/etiquetas/:id/logic")
+            .delete(auth_1.authMiddleware, this.labelController.deleteLabelAdv);
     }
 }
 exports.LabelRoutes = LabelRoutes;

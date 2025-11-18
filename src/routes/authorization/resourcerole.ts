@@ -6,7 +6,7 @@ export class ResourceRoleRoutes {
   public resourceRoleController: ResourceRoleController = new ResourceRoleController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    
     app.route("/api/resourceRoles/public")
       .get(this.resourceRoleController.getAllResourceRoles)
       .post(this.resourceRoleController.createResourceRole);
@@ -19,7 +19,7 @@ export class ResourceRoleRoutes {
     app.route("/api/resourceRoles/public/:id/logic")
       .delete(this.resourceRoleController.deleteResourceRoleAdv);
 
-    // ================== RUTAS CON AUTENTICACIÓN ==================
+    
     app.route("/api/resourceRoles")
       .get(authMiddleware, this.resourceRoleController.getAllResourceRoles)
       .post(authMiddleware, this.resourceRoleController.createResourceRole);

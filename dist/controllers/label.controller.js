@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LabelController = void 0;
 const Label_1 = require("../models/Label");
 class LabelController {
-    // Obtener todas las etiquetas activas
     getAllLabels(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -22,11 +21,11 @@ class LabelController {
                 res.status(200).json({ labels });
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching labels" });
             }
         });
     }
-    // Obtener una etiqueta por ID
     getLabelById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -35,62 +34,100 @@ class LabelController {
                     where: { id: pk, status: "ACTIVATE" },
                 });
                 if (label) {
-                    res.status(200).json(label);
+                    res.status(200).json({ label });
                 }
                 else {
                     res.status(404).json({ error: "Label not found or inactive" });
                 }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching label" });
             }
         });
     }
-    // Crear una nueva etiqueta
     createLabel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { nombre, descripcion, status } = req.body;
             try {
-                const body = req.body;
-                const label = yield Label_1.Label.create(body);
-                res.status(201).json(label);
+                const body = {
+                    nombre,
+                    descripcion,
+                    status,
+                };
+                const newLabel = yield Label_1.Label.create(Object.assign({}, body));
+                res.status(201).json(newLabel);
             }
             catch (error) {
-                res.status(500).json({ error: "Error creating label" });
+                console.error(error);
+                res.status(400).json({ error: error.message || "Error creating label" });
             }
         });
     }
-    // Actualizar una etiqueta por ID
     updateLabel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { id: pk } = req.params;
+            const { nombre, descripcion, status } = req.body;
             try {
-                const { id: pk } = req.params;
-                const body = req.body;
-                const label = yield Label_1.Label.findByPk(pk);
-                if (!label) {
-                    return res.status(404).json({ error: "Label not found" });
+                const body = {
+                    nombre,
+                    descripcion,
+                    status,
+                };
+                const labelExist = yield Label_1.Label.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (labelExist) {
+                    yield labelExist.update(body, { where: { id: pk } });
+                    res.status(200).json(labelExist);
                 }
-                yield label.update(body);
-                res.status(200).json(label);
+                else {
+                    res.status(404).json({ error: "Label not found or inactive" });
+                }
             }
             catch (error) {
-                res.status(500).json({ error: "Error updating label" });
+                console.error(error);
+                res.status(400).json({ error: error.message });
             }
         });
     }
-    // Eliminar (cambiar status a INACTIVE)
     deleteLabel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const label = yield Label_1.Label.findByPk(pk);
-                if (!label) {
-                    return res.status(404).json({ error: "Label not found" });
+                const { id } = req.params;
+                const labelToDelete = yield Label_1.Label.findByPk(id);
+                if (labelToDelete) {
+                    yield labelToDelete.destroy();
+                    res.status(200).json({ message: "Label deleted successfully" });
                 }
-                yield label.update({ status: "INACTIVE" });
-                res.status(200).json({ message: "Label set to INACTIVE" });
+                else {
+                    res.status(404).json({ error: "Label not found" });
+                }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error deleting label" });
+            }
+        });
+    }
+    deleteLabelAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const labelToUpdate = yield Label_1.Label.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (labelToUpdate) {
+                    yield labelToUpdate.update({ status: "INACTIVE" });
+                    res.status(200).json({ message: "Label marked as inactive" });
+                }
+                else {
+                    res.status(404).json({ error: "Label not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error marking label as inactive" });
             }
         });
     }

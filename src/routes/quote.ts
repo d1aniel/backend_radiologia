@@ -1,4 +1,4 @@
-// src/routes/quote.routes.ts
+
 import { Application } from "express";
 import { QuoteController } from "../controllers/quote.controller";
 import { authMiddleware } from "../middleware/auth";
@@ -7,7 +7,7 @@ export class QuoteRoutes {
   public quoteController: QuoteController = new QuoteController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/quotes/public")
       .get(this.quoteController.getAllQuotes)
       .post(this.quoteController.createQuote);

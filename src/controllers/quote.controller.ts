@@ -4,7 +4,7 @@ import { Patient } from "../models/Pacient";
 import { Technologist } from "../models/Technologist";
 
 export class QuoteController {
-  // Get all quotes
+  
   public async getAllQuotes(req: Request, res: Response) {
     try {
       const quotes = await Quote.findAll({
@@ -29,7 +29,7 @@ export class QuoteController {
     }
   }
 
-  // Get a quote by ID
+  
   public async getQuoteById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -60,7 +60,7 @@ export class QuoteController {
     }
   }
 
-  // Create a new quote
+  
   public async createQuote(req: Request, res: Response) {
     const {
       patient_id,
@@ -93,7 +93,7 @@ export class QuoteController {
     }
   }
 
-  // Update a quote (only if exists)
+  
   public async updateQuote(req: Request, res: Response) {
     const { id: pk } = req.params;
     const {
@@ -132,7 +132,7 @@ export class QuoteController {
     }
   }
 
-  // Delete a quote physically (destroy)
+  
   public async deleteQuote(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -150,7 +150,7 @@ export class QuoteController {
     }
   }
 
-  // Soft-delete a quote (mark estado = 'CANCELADA')
+  
   public async deleteQuoteAdv(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

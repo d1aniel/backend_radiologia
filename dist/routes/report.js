@@ -2,23 +2,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportRoutes = void 0;
 const report_controller_1 = require("../controllers/report.controller");
+const auth_1 = require("../middleware/auth");
 class ReportRoutes {
     constructor() {
         this.reportController = new report_controller_1.ReportController();
     }
     routes(app) {
-        // Obtener todos los informes
-        app.route("/reports").get(this.reportController.getAllReports);
-        // Obtener un informe por ID
-        app.route("/reports/:id").get(this.reportController.getReportById);
-        // Crear un nuevo informe
-        app.route("/reports").post(this.reportController.createReport);
-        // Actualizar un informe por ID
-        app.route("/reports/:id").put(this.reportController.updateReport);
-        // Firmar informe (cambiar estado a FIRMADO)
-        app.route("/reports/:id/sign").put(this.reportController.signReport);
-        // Eliminar informe
-        app.route("/reports/:id").delete(this.reportController.deleteReport);
+        app.route("/api/informes")
+            .get(auth_1.authMiddleware, this.reportController.getAllReports)
+            .post(auth_1.authMiddleware, this.reportController.createReport);
+        app.route("/api/informes/:id")
+            .get(auth_1.authMiddleware, this.reportController.getReportById)
+            .patch(auth_1.authMiddleware, this.reportController.updateReport)
+            .delete(auth_1.authMiddleware, this.reportController.deleteReport);
+        app.route("/api/informes/:id/logic")
+            .delete(auth_1.authMiddleware, this.reportController.deleteReportAdv);
+        app.route("/api/informes/:id/sign")
+            .put(auth_1.authMiddleware, this.reportController.signReport);
     }
 }
 exports.ReportRoutes = ReportRoutes;

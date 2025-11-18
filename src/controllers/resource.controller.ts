@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Resource, ResourceI } from "../models/authorization/Resource";
 
 export class ResourceController {
-  // Obtener todos los recursos
+  
   public async getAllResources(req: Request, res: Response): Promise<void> {
     try {
       const resources: ResourceI[] = await Resource.findAll({
@@ -14,7 +14,7 @@ export class ResourceController {
     }
   }
 
-  // Obtener un recurso por ID
+  
   public async getResourceById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -31,7 +31,7 @@ export class ResourceController {
     }
   }
 
-  // Crear un nuevo recurso
+  
   public async createResource(req: Request, res: Response): Promise<void> {
     const { path, method, is_active } = req.body;
     try {
@@ -42,7 +42,7 @@ export class ResourceController {
     }
   }
 
-  // Actualizar un recurso
+  
   public async updateResource(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const { path, method, is_active } = req.body;
@@ -59,7 +59,7 @@ export class ResourceController {
     }
   }
 
-  // Eliminar un recurso físicamente
+  
   public async deleteResource(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {
@@ -75,7 +75,7 @@ export class ResourceController {
     }
   }
 
-  // Eliminar un recurso lógicamente
+  
   public async deleteResourceAdv(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {

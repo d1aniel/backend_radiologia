@@ -13,16 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sequelize = exports.testConnection = exports.getDatabaseInfo = void 0;
-// src/database/connection.ts
 const sequelize_1 = require("sequelize");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const DEFAULT_TIMEZONE = process.env.DB_TIMEZONE || "America/Bogota";
 const engine = (process.env.DB_DIALECT || process.env.DB_ENGINE || "mysql").toLowerCase();
 const toNumber = (value, fallback) => {
-    if (value === undefined) {
+    if (value === undefined)
         return fallback;
-    }
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : fallback;
 };
@@ -56,7 +54,6 @@ const buildConfig = () => {
                 },
             };
         case "oracle":
-            // Nota: Sequelize requiere drivers externos / dialectos para oracle.
             return {
                 database: process.env.ORACLE_NAME || process.env.DB_NAME || "",
                 username: process.env.ORACLE_USER || process.env.DB_USER || "",
@@ -70,7 +67,7 @@ const buildConfig = () => {
                         `${process.env.ORACLE_HOST || "localhost"}:${process.env.ORACLE_PORT || 1521}/${process.env.ORACLE_SID || ""}`,
                 },
             };
-        default: // mysql
+        default:
             return {
                 database: process.env.DB_NAME || process.env.MYSQL_NAME || "test",
                 username: process.env.DB_USER || process.env.MYSQL_USER || "root",
@@ -95,21 +92,14 @@ const resolvePoolValue = (key, fallback) => {
     const envKey = `DB_POOL_${key.toString().toUpperCase()}`;
     const envValue = process.env[envKey];
     const configValue = (_a = selectedConfig.pool) === null || _a === void 0 ? void 0 : _a[key];
-    if (typeof envValue !== "undefined") {
+    if (typeof envValue !== "undefined")
         return toNumber(envValue, fallback);
-    }
-    if (typeof configValue === "number") {
+    if (typeof configValue === "number")
         return configValue;
-    }
     return fallback;
 };
-const sequelizeOptions = {
-    host: selectedConfig.host,
-    port: selectedConfig.port,
+const partialOptions = {
     dialect: selectedConfig.dialect,
-    timezone: selectedConfig.timezone,
-    dialectOptions: selectedConfig.dialectOptions,
-    logging: resolveLogging(),
     pool: {
         max: resolvePoolValue("max", 5),
         min: resolvePoolValue("min", 0),
@@ -117,11 +107,21 @@ const sequelizeOptions = {
         idle: resolvePoolValue("idle", 10000),
     },
 };
+const loggingValue = resolveLogging();
+if (typeof loggingValue !== "undefined") {
+    partialOptions.logging = loggingValue;
+}
+if (selectedConfig.host)
+    partialOptions.host = selectedConfig.host;
+if (typeof selectedConfig.port !== "undefined")
+    partialOptions.port = selectedConfig.port;
+if (selectedConfig.timezone)
+    partialOptions.timezone = selectedConfig.timezone;
+if (selectedConfig.dialectOptions)
+    partialOptions.dialectOptions = selectedConfig.dialectOptions;
+const sequelizeOptions = partialOptions;
 const sequelize = new sequelize_1.Sequelize(selectedConfig.database, selectedConfig.username, selectedConfig.password, sequelizeOptions);
 exports.sequelize = sequelize;
-/**
- * Devuelve información útil para logging/debug.
- */
 const getDatabaseInfo = () => ({
     engine,
     config: {
@@ -134,9 +134,6 @@ const getDatabaseInfo = () => ({
     connectionString: `${selectedConfig.dialect}://${selectedConfig.username}@${selectedConfig.host}:${selectedConfig.port}/${selectedConfig.database}`,
 });
 exports.getDatabaseInfo = getDatabaseInfo;
-/**
- * Prueba la conexión con authenticate(). Devuelve true si ok.
- */
 const testConnection = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield sequelize.authenticate();

@@ -1,4 +1,4 @@
-// src/routes/label.routes.ts
+
 import { Application } from "express";
 import { LabelController } from "../controllers/label.controller";
 import { authMiddleware } from "../middleware/auth";
@@ -7,7 +7,7 @@ export class LabelRoutes {
   public labelController: LabelController = new LabelController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/etiquetas/public")
       .get(this.labelController.getAllLabels)
       .post(this.labelController.createLabel);

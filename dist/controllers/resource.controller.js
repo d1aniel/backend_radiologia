@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceController = void 0;
 const Resource_1 = require("../models/authorization/Resource");
 class ResourceController {
-    // Obtener todos los recursos
     getAllResources(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -26,7 +25,6 @@ class ResourceController {
             }
         });
     }
-    // Obtener un recurso por ID
     getResourceById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -46,7 +44,6 @@ class ResourceController {
             }
         });
     }
-    // Crear un nuevo recurso
     createResource(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { path, method, is_active } = req.body;
@@ -59,7 +56,6 @@ class ResourceController {
             }
         });
     }
-    // Actualizar un recurso
     updateResource(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -79,7 +75,6 @@ class ResourceController {
             }
         });
     }
-    // Eliminar un recurso físicamente
     deleteResource(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -98,7 +93,6 @@ class ResourceController {
             }
         });
     }
-    // Eliminar un recurso lógicamente
     deleteResourceAdv(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;

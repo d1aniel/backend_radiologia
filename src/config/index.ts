@@ -1,9 +1,9 @@
-// src/app.ts
+
 import dotenv from "dotenv";
 import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
-import path from "path";                    // 👈 IMPORTANTE: agregar esto
+import path from "path";                    
 import { sequelize, testConnection, getDatabaseInfo } from "../database/connection";
 import "../models/associations"; 
 import { Routes } from "../routes";
@@ -18,7 +18,7 @@ export class App {
     this.app = express();
     this.routesProvider = new Routes();
     this.settings();
-    this.middlewares();   // 👈 el orden importa
+    this.middlewares();   
     this.routes();
   }
 

@@ -1,4 +1,4 @@
-// src/models/technologist.ts
+
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../database/connection";
 

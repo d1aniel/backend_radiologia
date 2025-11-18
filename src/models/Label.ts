@@ -1,4 +1,4 @@
-// src/models/label.ts
+
 import { DataTypes, Model } from 'sequelize';
 import  sequelize  from '../database/connection';
 
@@ -42,13 +42,13 @@ Label.init(
     status: {
       type: DataTypes.ENUM('ACTIVATE', 'INACTIVE'),
       allowNull: false,
-      defaultValue: 'ACTIVATE', // al crear, queda activa por defecto
+      defaultValue: 'ACTIVATE', 
     },
   },
   {
     sequelize,
     modelName: 'Label',
-    tableName: 'labels', // o 'etiquetas' si prefieres español en BD
+    tableName: 'labels', 
     timestamps: false,
     indexes: [
       { unique: true, fields: ['nombre'] },

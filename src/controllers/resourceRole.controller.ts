@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ResourceRole, ResourceRoleI } from "../models/authorization/ResourceRole";
 
 export class ResourceRoleController {
-  // Obtener todos los ResourceRoles
+  
   public async getAllResourceRoles(req: Request, res: Response): Promise<void> {
     try {
       const resourceRoles: ResourceRoleI[] = await ResourceRole.findAll({
@@ -14,7 +14,7 @@ export class ResourceRoleController {
     }
   }
 
-  // Obtener un ResourceRole por ID
+  
   public async getResourceRoleById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -31,7 +31,7 @@ export class ResourceRoleController {
     }
   }
 
-  // Crear un nuevo ResourceRole
+  
   public async createResourceRole(req: Request, res: Response): Promise<void> {
     const { resource_id, role_id, is_active } = req.body;
     try {
@@ -42,7 +42,7 @@ export class ResourceRoleController {
     }
   }
 
-  // Actualizar un ResourceRole
+  
   public async updateResourceRole(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const { resource_id, role_id, is_active } = req.body;
@@ -59,7 +59,7 @@ export class ResourceRoleController {
     }
   }
 
-  // Eliminar un ResourceRole físicamente
+  
   public async deleteResourceRole(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {
@@ -75,7 +75,7 @@ export class ResourceRoleController {
     }
   }
 
-  // Eliminar un ResourceRole lógicamente
+  
   public async deleteResourceRoleAdv(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {

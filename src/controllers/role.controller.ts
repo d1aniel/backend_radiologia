@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Role, RoleI } from '../models/authorization/Role';
 
 export class RoleController {
-  // Obtener todos los roles
+  
   public async getAllRoles(req: Request, res: Response): Promise<void> {
     try {
       const roles: RoleI[] = await Role.findAll();
@@ -12,7 +12,7 @@ export class RoleController {
     }
   }
 
-  // Obtener un rol por ID
+  
   public async getRoleById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
@@ -27,7 +27,7 @@ export class RoleController {
     }
   }
 
-  // Crear un nuevo rol
+  
   public async createRole(req: Request, res: Response): Promise<void> {
     const { name, is_active } = req.body;
     try {
@@ -38,7 +38,7 @@ export class RoleController {
     }
   }
 
-  // Actualizar un rol
+  
   public async updateRole(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     const { name, is_active } = req.body;
@@ -55,7 +55,7 @@ export class RoleController {
     }
   }
 
-  // Eliminar un rol físicamente
+  
   public async deleteRole(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {
@@ -71,7 +71,7 @@ export class RoleController {
     }
   }
 
-  // Eliminar un rol lógicamente
+  
   public async deleteRoleAdv(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
     try {

@@ -8,23 +8,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudyController = void 0;
+const connection_1 = __importDefault(require("../database/connection"));
 const Studie_1 = require("../models/Studie");
 const Pacient_1 = require("../models/Pacient");
 const Label_1 = require("../models/Label");
+const Doctor_1 = require("../models/Doctor");
+const Technologist_1 = require("../models/Technologist");
+const Modalitie_1 = require("../models/Modalitie");
+const Team_1 = require("../models/Team");
+const Image_1 = require("../models/Image");
+const Quote_1 = require("../models/Quote");
+const STUDY_INCLUDE = [
+    { model: Pacient_1.Patient, as: "patient", attributes: ["id", "nombre", "apellido", "documento"] },
+    { model: Doctor_1.Doctor, as: "doctor", attributes: ["id", "nombre"] },
+    { model: Technologist_1.Technologist, as: "technologist_user", attributes: ["id", "nombre"] },
+    { model: Modalitie_1.Modalidad, as: "modalidad_obj", attributes: ["id", "nombre"] },
+    { model: Team_1.Team, as: "team_obj", attributes: ["id", "nombre"] },
+    { model: Quote_1.Quote, as: "cita_obj", attributes: ["id"] },
+    { model: Image_1.Image, as: "imagenes", attributes: ["id", "url", "nombreArchivo", "tipo"] },
+    { model: Label_1.Label, as: "labels", attributes: ["id", "nombre"], through: { attributes: [] } },
+];
 class StudyController {
-    // Obtener todos los estudios activos (incluye paciente, labels, imagenes)
     getAllStudies(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const studies = yield Studie_1.Study.findAll({
                     where: { status: "ACTIVE" },
-                    include: [
-                        { model: Pacient_1.Patient, as: "patient" }, // si en tu modelo la alias es distinto ajústalo
-                        { model: Label_1.Label, as: "labels" }, // incluir etiquetas asociadas
-                        // { model: Image, as: 'imagenes' }   // si quieres imágenes inclúyelo
-                    ],
+                    include: STUDY_INCLUDE,
+                    order: [["fechaHora", "DESC"]],
                 });
                 res.status(200).json({ studies });
             }
@@ -34,25 +50,17 @@ class StudyController {
             }
         });
     }
-    // Obtener un estudio por ID
     getStudyById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id: pk } = req.params;
                 const study = yield Studie_1.Study.findOne({
                     where: { id: pk, status: "ACTIVE" },
-                    include: [
-                        { model: Pacient_1.Patient, as: "patient" },
-                        { model: Label_1.Label, as: "labels" },
-                        // { model: Image, as: 'imagenes' }
-                    ],
+                    include: STUDY_INCLUDE,
                 });
-                if (study) {
-                    res.status(200).json(study);
-                }
-                else {
-                    res.status(404).json({ error: "Study not found or inactive" });
-                }
+                if (!study)
+                    return res.status(404).json({ error: "Study not found or inactive" });
+                res.status(200).json({ study });
             }
             catch (error) {
                 console.error(error);
@@ -60,101 +68,187 @@ class StudyController {
             }
         });
     }
-    // Crear un nuevo estudio
-    // body esperado: StudyI fields (patient_id, modalidad, equipo, fechaHora (ISO), prioridad, motivo, tecnologo?, medico?) 
-    // opcional: labels: number[] (IDs de etiquetas)
     createStudy(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c;
+            const { patient_id, modality_id, team_id, technologist_id = null, medico_id = null, quote_id = null, fechaHora, prioridad = "MEDIA", motivo, status = "ACTIVE", labels = [], } = req.body;
             try {
-                const body = req.body;
-                // Validación básica: patient_id debe existir y paciente activo
-                if (!body.patient_id) {
+                if (!patient_id)
                     return res.status(400).json({ error: "patient_id is required" });
-                }
-                const patient = yield Pacient_1.Patient.findOne({ where: { id: body.patient_id, status: "ACTIVE" } });
-                if (!patient) {
+                if (!modality_id)
+                    return res.status(400).json({ error: "modality_id is required" });
+                if (!team_id)
+                    return res.status(400).json({ error: "team_id is required" });
+                if (!fechaHora)
+                    return res.status(400).json({ error: "fechaHora is required" });
+                if (!motivo)
+                    return res.status(400).json({ error: "motivo is required" });
+                console.log("[createStudy] req.body:", req.body);
+                const patient = yield Pacient_1.Patient.findOne({ where: { id: patient_id, status: "ACTIVATE" } });
+                if (!patient)
                     return res.status(400).json({ error: "Patient not found or inactive" });
+                const modality = yield Modalitie_1.Modalidad.findByPk(modality_id);
+                if (!modality) {
+                    return res.status(400).json({ error: "Modality not found" });
                 }
-                // crea el estudio (si fechaHora viene como string ISO, Sequelize lo acepta o conviértelo)
-                const studyPayload = {
-                    patient_id: body.patient_id,
-                    modalidad: body.modalidad,
-                    equipo: body.equipo,
-                    tecnologo: (_a = body.tecnologo) !== null && _a !== void 0 ? _a : null,
-                    medico: (_b = body.medico) !== null && _b !== void 0 ? _b : null,
-                    fechaHora: body.fechaHora ? new Date(body.fechaHora) : new Date(),
-                    prioridad: ((_c = body.prioridad) !== null && _c !== void 0 ? _c : "MEDIA"),
-                    motivo: body.motivo,
-                    status: "ACTIVE",
-                };
-                const newStudy = yield Studie_1.Study.create(studyPayload);
-                // Si vienen etiquetas (labels) asociarlas (reemplaza las existentes)
-                if (Array.isArray(body.labels) && body.labels.length > 0) {
-                    // labels deben existir: opcional validación
-                    const existingLabels = yield Label_1.Label.findAll({ where: { id: body.labels } });
-                    const existingIds = existingLabels.map(l => l.id);
-                    // Usa el alias de la asociación: en tu modelo definiste as: 'labels'
-                    // si se usa 'etiquetas' ajusta a esa clave
-                    yield newStudy.$set("labels", existingIds);
+                const team = yield Team_1.Team.findByPk(team_id);
+                if (!team) {
+                    return res.status(400).json({ error: "Team not found" });
                 }
-                // Recupera el estudio creado con includes para retornar datos completos
-                const created = yield Studie_1.Study.findByPk(newStudy.id, {
-                    include: [
-                        { model: Pacient_1.Patient, as: "patient" },
-                        { model: Label_1.Label, as: "labels" },
-                    ],
-                });
-                res.status(201).json(created);
+                let medicoNombre = null;
+                if (medico_id) {
+                    const doctor = yield Doctor_1.Doctor.findByPk(medico_id);
+                    if (!doctor) {
+                        return res.status(400).json({ error: "Doctor not found" });
+                    }
+                    medicoNombre = doctor.nombre;
+                }
+                let tecnologoNombre = null;
+                if (technologist_id) {
+                    const tecn = yield Technologist_1.Technologist.findByPk(technologist_id);
+                    if (!tecn) {
+                        return res.status(400).json({ error: "Technologist not found" });
+                    }
+                    tecnologoNombre = tecn.nombre;
+                }
+                const validPriorities = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
+                let prioridadFinal = "MEDIA";
+                if (prioridad && typeof prioridad === "string") {
+                    const upper = prioridad.toUpperCase();
+                    if (!validPriorities.includes(upper)) {
+                        return res.status(400).json({ error: `prioridad inválida: ${prioridad}` });
+                    }
+                    prioridadFinal = upper;
+                }
+                const fecha = new Date(fechaHora);
+                if (isNaN(fecha.getTime())) {
+                    return res.status(400).json({ error: `fechaHora inválida: ${fechaHora}` });
+                }
+                const transaction = yield connection_1.default.transaction();
+                try {
+                    const newStudy = yield Studie_1.Study.create({
+                        patient_id,
+                        modality_id,
+                        team_id,
+                        technologist_id,
+                        medico_id,
+                        quote_id,
+                        fechaHora: fecha,
+                        prioridad: prioridadFinal,
+                        motivo,
+                        status: status === "INACTIVE" ? "INACTIVE" : "ACTIVE",
+                        modalidad: modality.nombre,
+                        equipo: team.nombre,
+                        medico: medicoNombre,
+                        tecnologo: tecnologoNombre,
+                    }, { transaction });
+                    if (Array.isArray(labels) && labels.length > 0) {
+                        const existing = yield Label_1.Label.findAll({ where: { id: labels } });
+                        const ids = existing.map(l => l.id);
+                        yield newStudy.setLabels(ids, { transaction });
+                    }
+                    yield transaction.commit();
+                    const created = yield Studie_1.Study.findByPk(newStudy.id, { include: STUDY_INCLUDE });
+                    return res.status(201).json({ study: created });
+                }
+                catch (error) {
+                    yield transaction.rollback();
+                    console.error("[createStudy] Sequelize error:", error === null || error === void 0 ? void 0 : error.name, error === null || error === void 0 ? void 0 : error.message);
+                    console.error(error);
+                    return res.status(500).json({ error: "Error creating study", details: error === null || error === void 0 ? void 0 : error.message });
+                }
             }
             catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Error creating study" });
+                console.error("[createStudy] Outer error:", error);
+                return res.status(500).json({ error: "Error creating study" });
             }
         });
     }
-    // Actualizar un estudio por ID (y opcionalmente reemplazar labels)
     updateStudy(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+            var _a, _b;
             try {
                 const { id: pk } = req.params;
-                const body = req.body;
+                const { patient_id, modality_id, team_id, technologist_id, medico_id, quote_id, fechaHora, prioridad, motivo, status, labels, } = req.body;
                 const study = yield Studie_1.Study.findByPk(pk);
-                if (!study) {
+                if (!study)
                     return res.status(404).json({ error: "Study not found" });
-                }
-                // Si se intenta cambiar patient_id validar existencia
-                if (body.patient_id) {
-                    const patient = yield Pacient_1.Patient.findOne({ where: { id: body.patient_id, status: "ACTIVE" } });
-                    if (!patient) {
+                if (patient_id) {
+                    const patient = yield Pacient_1.Patient.findOne({ where: { id: patient_id, status: "ACTIVATE" } });
+                    if (!patient)
                         return res.status(400).json({ error: "Patient not found or inactive" });
+                }
+                let modalidadNombre = study.modalidad;
+                if (modality_id) {
+                    const modality = yield Modalitie_1.Modalidad.findByPk(modality_id);
+                    if (!modality) {
+                        return res.status(400).json({ error: "Modality not found" });
                     }
+                    modalidadNombre = modality.nombre;
                 }
-                // Actualizar campos permitidos
-                yield study.update({
-                    patient_id: (_a = body.patient_id) !== null && _a !== void 0 ? _a : study.patient_id,
-                    modalidad: (_b = body.modalidad) !== null && _b !== void 0 ? _b : study.modalidad,
-                    equipo: (_c = body.equipo) !== null && _c !== void 0 ? _c : study.equipo,
-                    tecnologo: (_e = (_d = body.tecnologo) !== null && _d !== void 0 ? _d : study.tecnologo) !== null && _e !== void 0 ? _e : null,
-                    medico: (_g = (_f = body.medico) !== null && _f !== void 0 ? _f : study.medico) !== null && _g !== void 0 ? _g : null,
-                    fechaHora: body.fechaHora ? new Date(body.fechaHora) : study.fechaHora,
-                    prioridad: ((_h = body.prioridad) !== null && _h !== void 0 ? _h : study.prioridad),
-                    motivo: (_j = body.motivo) !== null && _j !== void 0 ? _j : study.motivo,
-                });
-                // Reemplazar etiquetas si vienen en el body
-                if (Array.isArray(body.labels)) {
-                    const existingLabels = yield Label_1.Label.findAll({ where: { id: body.labels } });
-                    const existingIds = existingLabels.map(l => l.id);
-                    yield study.$set("labels", existingIds);
+                let equipoNombre = study.equipo;
+                if (team_id) {
+                    const team = yield Team_1.Team.findByPk(team_id);
+                    if (!team) {
+                        return res.status(400).json({ error: "Team not found" });
+                    }
+                    equipoNombre = team.nombre;
                 }
-                const updated = yield Studie_1.Study.findByPk(pk, {
-                    include: [
-                        { model: Pacient_1.Patient, as: "patient" },
-                        { model: Label_1.Label, as: "labels" },
-                    ],
-                });
-                res.status(200).json(updated);
+                let medicoNombre = (_a = study.medico) !== null && _a !== void 0 ? _a : null;
+                if (medico_id) {
+                    const doctor = yield Doctor_1.Doctor.findByPk(medico_id);
+                    if (!doctor) {
+                        return res.status(400).json({ error: "Doctor not found" });
+                    }
+                    medicoNombre = doctor.nombre;
+                }
+                let tecnologoNombre = (_b = study.tecnologo) !== null && _b !== void 0 ? _b : null;
+                if (technologist_id) {
+                    const tecn = yield Technologist_1.Technologist.findByPk(technologist_id);
+                    if (!tecn) {
+                        return res.status(400).json({ error: "Technologist not found" });
+                    }
+                    tecnologoNombre = tecn.nombre;
+                }
+                let prioridadFinal = study.prioridad;
+                if (prioridad) {
+                    const validPriorities = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
+                    const upper = String(prioridad).toUpperCase();
+                    if (!validPriorities.includes(upper)) {
+                        return res.status(400).json({ error: `prioridad inválida: ${prioridad}` });
+                    }
+                    prioridadFinal = upper;
+                }
+                const transaction = yield connection_1.default.transaction();
+                try {
+                    yield study.update({
+                        patient_id: patient_id !== null && patient_id !== void 0 ? patient_id : study.patient_id,
+                        modality_id: modality_id !== null && modality_id !== void 0 ? modality_id : study.modality_id,
+                        team_id: team_id !== null && team_id !== void 0 ? team_id : study.team_id,
+                        technologist_id: technologist_id !== null && technologist_id !== void 0 ? technologist_id : study.technologist_id,
+                        medico_id: medico_id !== null && medico_id !== void 0 ? medico_id : study.medico_id,
+                        quote_id: quote_id !== null && quote_id !== void 0 ? quote_id : study.quote_id,
+                        fechaHora: fechaHora ? new Date(fechaHora) : study.fechaHora,
+                        prioridad: prioridadFinal,
+                        motivo: motivo !== null && motivo !== void 0 ? motivo : study.motivo,
+                        status: status !== null && status !== void 0 ? status : study.status,
+                        modalidad: modalidadNombre,
+                        equipo: equipoNombre,
+                        medico: medicoNombre,
+                        tecnologo: tecnologoNombre,
+                    }, { transaction });
+                    if (Array.isArray(labels)) {
+                        const existing = yield Label_1.Label.findAll({ where: { id: labels } });
+                        const ids = existing.map(l => l.id);
+                        yield study.setLabels(ids, { transaction });
+                    }
+                    yield transaction.commit();
+                    const updated = yield Studie_1.Study.findByPk(pk, { include: STUDY_INCLUDE });
+                    return res.status(200).json({ study: updated });
+                }
+                catch (error) {
+                    yield transaction.rollback();
+                    throw error;
+                }
             }
             catch (error) {
                 console.error(error);
@@ -162,17 +256,15 @@ class StudyController {
             }
         });
     }
-    // Eliminar estudio: marcar status = INACTIVE
     deleteStudy(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id: pk } = req.params;
                 const study = yield Studie_1.Study.findByPk(pk);
-                if (!study) {
+                if (!study)
                     return res.status(404).json({ error: "Study not found" });
-                }
                 yield study.update({ status: "INACTIVE" });
-                res.status(200).json({ message: "Study set to INACTIVE" });
+                res.status(200).json({ message: "Study marked as INACTIVE" });
             }
             catch (error) {
                 console.error(error);

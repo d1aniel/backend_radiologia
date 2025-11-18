@@ -1,19 +1,19 @@
-// src/models/doctor.ts
+
 import { DataTypes, Model, Optional } from "sequelize";
 import  sequelize  from "../database/connection";
 
-// Interface base (coincide con tu front)
+
 export interface DoctorI {
   id?: number;
   nombre: string;
   especialidad: string;
-  telefono: string;     // mejor string para conservar ceros iniciales y formatos
+  telefono: string;     
   correo: string;
-  registro?: string | null; // opcional
+  registro?: string | null; 
   status: "ACTIVATE" | "INACTIVE";
 }
 
-// Si quieres creación parcial sin id:
+
 type DoctorCreationAttrs = Optional<DoctorI, "id" | "registro">;
 
 export class Doctor extends Model<DoctorI, DoctorCreationAttrs> implements DoctorI {
@@ -69,9 +69,9 @@ Doctor.init(
 
     registro: {
       type: DataTypes.STRING,
-      allowNull: true,    // opcional
-      // Si quieres que no se repita cuando esté presente, descomenta la línea siguiente:
-      // unique: true,
+      allowNull: true,    
+      
+      
     },
 
     status: {
@@ -84,10 +84,10 @@ Doctor.init(
     modelName: "Doctor",
     tableName: "doctors",
     timestamps: false,
-    // Opcional: índices recomendados
+    
     indexes: [
       { unique: true, fields: ["correo"] },
-      // Si activas unique en 'registro', este índice no es necesario
+      
     ],
   }
 );

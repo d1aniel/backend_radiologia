@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportController = void 0;
 const Report_1 = __importDefault(require("../models/Report"));
 class ReportController {
-    // Obtener todos los informes
     getAllReports(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -23,80 +22,108 @@ class ReportController {
                 res.status(200).json({ reports });
             }
             catch (error) {
-                console.error("getAllReports error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error fetching reports" });
             }
         });
     }
-    // Obtener un informe por ID
     getReportById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id: pk } = req.params;
                 const report = yield Report_1.default.findByPk(pk);
                 if (report) {
-                    res.status(200).json(report);
+                    res.status(200).json({ report });
                 }
                 else {
                     res.status(404).json({ error: "Report not found" });
                 }
             }
             catch (error) {
-                console.error("getReportById error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error fetching report" });
             }
         });
     }
-    // Crear un nuevo informe (valida 1:1 con estudioId)
     createReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const body = req.body;
-                // Verificar que no exista otro informe para el mismo estudio (1:1)
-                const exists = yield Report_1.default.findOne({ where: { estudioId: body.estudioId } });
-                if (exists) {
-                    return res.status(400).json({ error: "El estudio ya tiene un informe" });
+                const { estudio_id, estudioId, estado, cuerpo, medico_id, medicoId, } = req.body;
+                const finalEstudioId = estudio_id !== null && estudio_id !== void 0 ? estudio_id : estudioId;
+                const finalMedicoId = medico_id !== null && medico_id !== void 0 ? medico_id : medicoId;
+                if (!finalEstudioId) {
+                    return res.status(400).json({ error: "estudio_id es obligatorio" });
                 }
-                const report = yield Report_1.default.create(body);
-                res.status(201).json(report);
+                if (!finalMedicoId) {
+                    return res.status(400).json({ error: "medico_id es obligatorio" });
+                }
+                const body = {
+                    estudioId: finalEstudioId,
+                    estado,
+                    cuerpo,
+                    medicoId: finalMedicoId,
+                };
+                const exists = yield Report_1.default.findOne({
+                    where: { estudioId: body.estudioId },
+                });
+                if (exists) {
+                    return res
+                        .status(400)
+                        .json({ error: "El estudio ya tiene un informe" });
+                }
+                const newReport = yield Report_1.default.create(body);
+                res.status(201).json(newReport);
             }
             catch (error) {
-                console.error("createReport error:", error);
-                // Si viene de validación de Sequelize, mandar mensaje más claro
-                if ((error === null || error === void 0 ? void 0 : error.name) === "SequelizeValidationError" || (error === null || error === void 0 ? void 0 : error.name) === "SequelizeUniqueConstraintError") {
+                console.error(error);
+                if ((error === null || error === void 0 ? void 0 : error.name) === "SequelizeValidationError" ||
+                    (error === null || error === void 0 ? void 0 : error.name) === "SequelizeUniqueConstraintError") {
                     return res.status(400).json({ error: error.message });
                 }
                 res.status(500).json({ error: "Error creating report" });
             }
         });
     }
-    // Actualizar un informe por ID
     updateReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id: pk } = req.params;
-                const body = req.body;
+                const { estudio_id, estudioId, estado, cuerpo, medico_id, medicoId, } = req.body;
+                const newEstudioId = estudio_id !== null && estudio_id !== void 0 ? estudio_id : estudioId;
+                const newMedicoId = medico_id !== null && medico_id !== void 0 ? medico_id : medicoId;
                 const report = yield Report_1.default.findByPk(pk);
                 if (!report) {
                     return res.status(404).json({ error: "Report not found" });
                 }
-                // Si vienen cambios en estudioId, asegurarse que no rompa la restricción 1:1
-                if (body.estudioId && body.estudioId !== report.estudioId) {
-                    const exists = yield Report_1.default.findOne({ where: { estudioId: body.estudioId } });
+                if (typeof newEstudioId !== "undefined" &&
+                    newEstudioId !== report.estudioId) {
+                    const exists = yield Report_1.default.findOne({
+                        where: { estudioId: newEstudioId },
+                    });
                     if (exists) {
-                        return res.status(400).json({ error: "El nuevo estudioId ya tiene asociado un informe" });
+                        return res.status(400).json({
+                            error: "El nuevo estudio ya tiene asociado un informe",
+                        });
                     }
                 }
-                yield report.update(body);
+                const patch = {};
+                if (typeof newEstudioId !== "undefined")
+                    patch.estudioId = newEstudioId;
+                if (typeof estado !== "undefined")
+                    patch.estado = estado;
+                if (typeof cuerpo !== "undefined")
+                    patch.cuerpo = cuerpo;
+                if (typeof newMedicoId !== "undefined")
+                    patch.medicoId = newMedicoId;
+                yield report.update(patch);
                 res.status(200).json(report);
             }
             catch (error) {
-                console.error("updateReport error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error updating report" });
             }
         });
     }
-    // Firmar informe (cambiar estado a FIRMADO)
     signReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -109,26 +136,46 @@ class ReportController {
                 res.status(200).json({ message: "Report signed", report });
             }
             catch (error) {
-                console.error("signReport error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error signing report" });
             }
         });
     }
-    // Eliminar informe (borrar fila)
     deleteReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const report = yield Report_1.default.findByPk(pk);
-                if (!report) {
-                    return res.status(404).json({ error: "Report not found" });
+                const { id } = req.params;
+                const reportToDelete = yield Report_1.default.findByPk(id);
+                if (reportToDelete) {
+                    yield reportToDelete.destroy();
+                    res.status(200).json({ message: "Report deleted successfully" });
                 }
-                yield report.destroy();
-                res.status(200).json({ message: "Report deleted" });
+                else {
+                    res.status(404).json({ error: "Report not found" });
+                }
             }
             catch (error) {
-                console.error("deleteReport error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error deleting report" });
+            }
+        });
+    }
+    deleteReportAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const reportToUpdate = yield Report_1.default.findByPk(pk);
+                if (reportToUpdate) {
+                    yield reportToUpdate.update({ estado: "BORRADOR" });
+                    res.status(200).json({ message: "Report marked as borrador" });
+                }
+                else {
+                    res.status(404).json({ error: "Report not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error marking report" });
             }
         });
     }

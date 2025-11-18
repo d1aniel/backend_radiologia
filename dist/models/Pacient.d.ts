@@ -1,7 +1,4 @@
 import { Model } from "sequelize";
-/**
- * Modelo Patient (estilo profe)
- */
 export interface PatientI {
     id?: number;
     nombre: string;

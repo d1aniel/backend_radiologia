@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Label = void 0;
-// src/models/label.ts
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../database/connection"));
 class Label extends sequelize_1.Model {
@@ -35,12 +34,12 @@ Label.init({
     status: {
         type: sequelize_1.DataTypes.ENUM('ACTIVATE', 'INACTIVE'),
         allowNull: false,
-        defaultValue: 'ACTIVATE', // al crear, queda activa por defecto
+        defaultValue: 'ACTIVATE',
     },
 }, {
     sequelize: connection_1.default,
     modelName: 'Label',
-    tableName: 'labels', // o 'etiquetas' si prefieres español en BD
+    tableName: 'labels',
     timestamps: false,
     indexes: [
         { unique: true, fields: ['nombre'] },

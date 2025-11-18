@@ -8,14 +8,7 @@ export declare class App {
     private settings;
     private middlewares;
     private routes;
-    /**
-     * Método que intenta conectar, testear y sincronizar la BD.
-     * Lanza error o termina el proceso si falla (configurable).
-     */
     dbConnection(): Promise<void>;
-    /**
-     * Método de inicialización público: conecta la BD antes de arrancar el servidor.
-     */
     init(): Promise<void>;
     listen(): Promise<void>;
 }

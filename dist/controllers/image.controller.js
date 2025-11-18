@@ -15,16 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImageController = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const Image_1 = __importDefault(require("../models/Image")); // tu modelo Image
+const Image_1 = __importDefault(require("../models/Image"));
+const Studie_1 = require("../models/Studie");
 class ImageController {
-    // Listar imágenes (si pasas ?estudioId=1 filtra por estudio)
     getAllImages(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { estudioId } = req.query;
                 const where = {};
-                if (estudioId)
+                if (estudioId) {
                     where.estudioId = Number(estudioId);
+                }
                 const images = yield Image_1.default.findAll({ where });
                 res.status(200).json({ images });
             }
@@ -34,7 +35,6 @@ class ImageController {
             }
         });
     }
-    // Obtener imagen por id
     getImageById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -53,31 +53,40 @@ class ImageController {
             }
         });
     }
-    /**
-     * Crear imagen (espera multipart/form-data con campo 'file' y otros campos en body)
-     * Campos esperados en body:
-     * - estudioId (number)
-     * - tipo (DICOM|JPG|PNG|Serie)
-     * - serie (opcional)
-     * - orden (opcional)
-     *
-     * El middleware multer debe haber procesado el archivo y dejarlo en req.file
-     */
     createImage(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                // multer coloca info en req.file
                 const file = req.file;
                 if (!file) {
                     return res.status(400).json({ error: "No file uploaded" });
                 }
                 const { estudioId, tipo, serie, orden } = req.body;
-                // construimos los campos
+                if (!estudioId) {
+                    try {
+                        if (file.path && fs_1.default.existsSync(file.path)) {
+                            fs_1.default.unlinkSync(file.path);
+                        }
+                    }
+                    catch (_b) { }
+                    return res.status(400).json({ error: "estudioId is required" });
+                }
+                const study = yield Studie_1.Study.findByPk(Number(estudioId));
+                if (!study) {
+                    try {
+                        if (file.path && fs_1.default.existsSync(file.path)) {
+                            fs_1.default.unlinkSync(file.path);
+                        }
+                    }
+                    catch (_c) { }
+                    return res.status(400).json({ error: "Study (estudio) not found" });
+                }
+                let relativePath = path_1.default.relative(process.cwd(), file.path).replace(/\\/g, "/");
+                relativePath = "/" + relativePath.replace(/^\/+/, "");
                 const newImgPayload = {
                     estudioId: Number(estudioId),
                     tipo: (_a = tipo) !== null && _a !== void 0 ? _a : "DICOM",
-                    url: file.path, // ruta en disco. En produccion podrías guardar URL externa.
+                    url: relativePath,
                     nombreArchivo: file.originalname,
                     tamanoBytes: file.size,
                     serie: serie !== null && serie !== void 0 ? serie : null,
@@ -92,7 +101,6 @@ class ImageController {
             }
         });
     }
-    // Actualizar metadatos de la imagen (no reemplaza archivo). Si quieres reemplazar archivo, se puede expandir.
     updateImage(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d, _e, _f, _g;
@@ -103,7 +111,6 @@ class ImageController {
                 if (!image) {
                     return res.status(404).json({ error: "Image not found" });
                 }
-                // No permitimos actualizar id/fechaCarga desde body por seguridad
                 const allowed = {
                     estudioId: (_a = body.estudioId) !== null && _a !== void 0 ? _a : image.estudioId,
                     tipo: (_b = body.tipo) !== null && _b !== void 0 ? _b : image.tipo,
@@ -111,7 +118,7 @@ class ImageController {
                     tamanoBytes: (_d = body.tamanoBytes) !== null && _d !== void 0 ? _d : image.tamanoBytes,
                     serie: (_e = body.serie) !== null && _e !== void 0 ? _e : image.serie,
                     orden: (_f = body.orden) !== null && _f !== void 0 ? _f : image.orden,
-                    url: (_g = body.url) !== null && _g !== void 0 ? _g : image.url, // si se pasa una nueva url explícita permitimos, pero para reemplazo de archivo preferir separado
+                    url: (_g = body.url) !== null && _g !== void 0 ? _g : image.url,
                 };
                 yield image.update(allowed);
                 res.status(200).json(image);
@@ -122,11 +129,26 @@ class ImageController {
             }
         });
     }
-    /**
-     * Eliminar imagen:
-     * - elimina el archivo físico (si existe en disco y la ruta es local)
-     * - elimina el registro en DB
-     */
+    resolveDiskPath(filePath) {
+        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            return "";
+        }
+        const cwd = process.cwd();
+        let absolute;
+        if (path_1.default.isAbsolute(filePath)) {
+            if (filePath.startsWith(cwd)) {
+                absolute = filePath;
+            }
+            else {
+                const rel = filePath.replace(/^\/+/, "");
+                absolute = path_1.default.join(cwd, rel);
+            }
+        }
+        else {
+            absolute = path_1.default.join(cwd, filePath);
+        }
+        return absolute;
+    }
     deleteImage(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -135,20 +157,18 @@ class ImageController {
                 if (!image) {
                     return res.status(404).json({ error: "Image not found" });
                 }
-                // intentar borrar archivo si es ruta local
                 const filePath = image.url;
-                if (filePath && !filePath.startsWith("http")) {
-                    const absolute = path_1.default.isAbsolute(filePath)
-                        ? filePath
-                        : path_1.default.join(process.cwd(), filePath);
-                    try {
-                        if (fs_1.default.existsSync(absolute)) {
-                            fs_1.default.unlinkSync(absolute);
+                if (filePath) {
+                    const absolute = this.resolveDiskPath(filePath);
+                    if (absolute) {
+                        try {
+                            if (fs_1.default.existsSync(absolute)) {
+                                fs_1.default.unlinkSync(absolute);
+                            }
                         }
-                    }
-                    catch (fsErr) {
-                        console.warn("Could not delete file:", absolute, fsErr);
-                        // no bloqueamos la eliminación del registro por un error en el FS
+                        catch (fsErr) {
+                            console.warn("Could not delete file:", absolute, fsErr);
+                        }
                     }
                 }
                 yield image.destroy();
@@ -157,6 +177,39 @@ class ImageController {
             catch (error) {
                 console.error("deleteImage error:", error);
                 res.status(500).json({ error: "Error deleting image" });
+            }
+        });
+    }
+    deleteImageAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const image = yield Image_1.default.findByPk(pk);
+                if (!image) {
+                    return res.status(404).json({ error: "Image not found" });
+                }
+                const filePath = image.url;
+                if (filePath) {
+                    const absolute = this.resolveDiskPath(filePath);
+                    if (absolute) {
+                        try {
+                            if (fs_1.default.existsSync(absolute)) {
+                                fs_1.default.unlinkSync(absolute);
+                            }
+                        }
+                        catch (fsErr) {
+                            console.warn("Could not delete file (logic delete):", absolute, fsErr);
+                        }
+                    }
+                }
+                yield image.destroy();
+                res.status(200).json({
+                    message: "Image deleted (logical delete not supported: no status column, record removed)",
+                });
+            }
+            catch (error) {
+                console.error("deleteImageAdv error:", error);
+                res.status(500).json({ error: "Error deleting image (adv)" });
             }
         });
     }

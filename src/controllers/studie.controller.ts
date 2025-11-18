@@ -1,4 +1,4 @@
-// src/controllers/study.controller.ts
+
 import { Request, Response } from "express";
 import sequelize from "../database/connection";
 import { Prioridad, Study } from "../models/Studie";
@@ -23,7 +23,7 @@ const STUDY_INCLUDE = [
 ];
 
 export class StudyController {
-  // GET /estudios
+  
   public async getAllStudies(req: Request, res: Response) {
     try {
       const studies = await Study.findAll({
@@ -38,7 +38,7 @@ export class StudyController {
     }
   }
 
-  // GET /estudios/:id
+  
   public async getStudyById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -54,8 +54,8 @@ export class StudyController {
     }
   }
 
-  // POST /estudios
-  // body: { patient_id, modality_id, team_id, technologist_id?, medico_id?, quote_id?, fechaHora, prioridad, motivo, status?, labels?: number[] }
+  
+  
   public async createStudy(req: Request, res: Response) {
     const {
       patient_id,
@@ -80,23 +80,23 @@ export class StudyController {
 
       console.log("[createStudy] req.body:", req.body);
 
-      // Paciente ACTIVO (en tu sistema: ACTIVATE)
+      
       const patient = await Patient.findOne({ where: { id: patient_id, status: "ACTIVATE" } });
       if (!patient) return res.status(400).json({ error: "Patient not found or inactive" });
 
-      // Modalidad
+      
       const modality = await Modalidad.findByPk(modality_id);
       if (!modality) {
         return res.status(400).json({ error: "Modality not found" });
       }
 
-      // Equipo
+      
       const team = await Team.findByPk(team_id);
       if (!team) {
         return res.status(400).json({ error: "Team not found" });
       }
 
-      // Médico (opcional)
+      
       let medicoNombre: string | null = null;
       if (medico_id) {
         const doctor = await Doctor.findByPk(medico_id);
@@ -106,7 +106,7 @@ export class StudyController {
         medicoNombre = (doctor as any).nombre;
       }
 
-      // Tecnólogo (opcional)
+      
       let tecnologoNombre: string | null = null;
       if (technologist_id) {
         const tecn = await Technologist.findByPk(technologist_id);
@@ -116,7 +116,7 @@ export class StudyController {
         tecnologoNombre = (tecn as any).nombre;
       }
 
-      // Normalizar prioridad
+      
       const validPriorities = ["BAJA", "MEDIA", "ALTA", "URGENTE"] as const;
       let prioridadFinal: Prioridad = "MEDIA";
 
@@ -128,7 +128,7 @@ export class StudyController {
         prioridadFinal = upper as Prioridad;
       }
 
-      // Validar fechaHora
+      
       const fecha = new Date(fechaHora);
       if (isNaN(fecha.getTime())) {
         return res.status(400).json({ error: `fechaHora inválida: ${fechaHora}` });
@@ -160,7 +160,7 @@ export class StudyController {
         if (Array.isArray(labels) && labels.length > 0) {
           const existing = await Label.findAll({ where: { id: labels } });
           const ids = existing.map(l => l.id);
-          await (newStudy as any).setLabels(ids, { transaction }); // 👈 asociación N:N
+          await (newStudy as any).setLabels(ids, { transaction }); 
         }
 
         await transaction.commit();
@@ -179,7 +179,7 @@ export class StudyController {
     }
   }
 
-  // PATCH /estudios/:id
+  
   public async updateStudy(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -200,13 +200,13 @@ export class StudyController {
       const study = await Study.findByPk(pk);
       if (!study) return res.status(404).json({ error: "Study not found" });
 
-      // validar paciente activo si lo cambian
+      
       if (patient_id) {
         const patient = await Patient.findOne({ where: { id: patient_id, status: "ACTIVATE" } });
         if (!patient) return res.status(400).json({ error: "Patient not found or inactive" });
       }
 
-      // recalcular textos derivados solo si vienen nuevos IDs
+      
       let modalidadNombre = study.modalidad;
       if (modality_id) {
         const modality = await Modalidad.findByPk(modality_id);
@@ -243,7 +243,7 @@ export class StudyController {
         tecnologoNombre = (tecn as any).nombre;
       }
 
-      // Normalizar prioridad si viene
+      
       let prioridadFinal: Prioridad = study.prioridad;
       if (prioridad) {
         const validPriorities = ["BAJA", "MEDIA", "ALTA", "URGENTE"] as const;
@@ -280,7 +280,7 @@ export class StudyController {
         if (Array.isArray(labels)) {
           const existing = await Label.findAll({ where: { id: labels } });
           const ids = existing.map(l => l.id);
-          await (study as any).setLabels(ids, { transaction }); // 👈 aquí también setLabels
+          await (study as any).setLabels(ids, { transaction }); 
         }
 
         await transaction.commit();
@@ -297,7 +297,7 @@ export class StudyController {
     }
   }
 
-  // DELETE /estudios/:id (soft delete)
+  
   public async deleteStudy(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoleUserController = void 0;
 const RoleUser_1 = require("../models/authorization/RoleUser");
 class RoleUserController {
-    // Obtener todos los RoleUsers
     getAllRoleUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -24,7 +23,6 @@ class RoleUserController {
             }
         });
     }
-    // Obtener un RoleUser por ID
     getRoleUserById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -42,7 +40,6 @@ class RoleUserController {
             }
         });
     }
-    // Crear un nuevo RoleUser
     createRoleUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { role_id, user_id, is_active } = req.body;
@@ -55,7 +52,6 @@ class RoleUserController {
             }
         });
     }
-    // Actualizar un RoleUser
     updateRoleUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -75,7 +71,6 @@ class RoleUserController {
             }
         });
     }
-    // Eliminar un RoleUser físicamente
     deleteRoleUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -94,7 +89,6 @@ class RoleUserController {
             }
         });
     }
-    // Eliminar un RoleUser lógicamente
     deleteRoleUserAdv(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;

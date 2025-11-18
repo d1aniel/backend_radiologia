@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
-// src/app.ts
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const connection_1 = require("../database/connection");
-require("../models/associations"); // asegúrate que esto registre relaciones
+require("../models/associations");
 const routes_1 = require("../routes");
 dotenv_1.default.config();
 class App {
@@ -30,7 +30,6 @@ class App {
         this.settings();
         this.middlewares();
         this.routes();
-        // NO llamar dbConnection aquí: exponeremos init() para ser await-ado desde index.ts
     }
     settings() {
         this.app.set("port", this.port || process.env.PORT || 4000);
@@ -40,42 +39,40 @@ class App {
         this.app.use((0, cors_1.default)());
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
+        this.app.use("/uploads", express_1.default.static(path_1.default.join(process.cwd(), "uploads")));
     }
     routes() {
         this.routesProvider.routes(this.app);
     }
-    /**
-     * Método que intenta conectar, testear y sincronizar la BD.
-     * Lanza error o termina el proceso si falla (configurable).
-     */
     dbConnection() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             try {
                 const dbInfo = (0, connection_1.getDatabaseInfo)();
-                console.log(`🔗 Intentando conectar a: ${dbInfo.engine.toUpperCase()} (${(_a = dbInfo.database) !== null && _a !== void 0 ? _a : "sin nombre"})`);
+                console.log(`🔗 Intentando conectar a: ${dbInfo.engine.toUpperCase()} (${(_b = (_a = dbInfo.config) === null || _a === void 0 ? void 0 : _a.database) !== null && _b !== void 0 ? _b : "sin nombre"})`);
                 const ok = yield (0, connection_1.testConnection)();
                 if (!ok) {
                     throw new Error("Test de conexión fallido");
                 }
-                // sincroniza después de que las asociaciones ya estén registradas
-                yield connection_1.sequelize.sync({ force: false });
+                const shouldAlterSchema = String(process.env.DB_SYNC_ALTER || "true").toLowerCase() === "true";
+                if (shouldAlterSchema) {
+                    console.log("🛠  Sincronizando con alter para actualizar el esquema");
+                }
+                yield connection_1.sequelize.sync({
+                    force: false,
+                    alter: shouldAlterSchema ? { drop: false } : false,
+                });
                 console.log("📦 Base de datos sincronizada exitosamente");
             }
             catch (error) {
                 console.error("❌ Error al conectar con la base de datos:", error);
-                // En desarrollo podrías comentar la siguiente línea; en producción es recomendable terminar el proceso.
                 process.exit(1);
             }
         });
     }
-    /**
-     * Método de inicialización público: conecta la BD antes de arrancar el servidor.
-     */
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.dbConnection();
-            // cualquier otra inicialización que necesites
         });
     }
     listen() {

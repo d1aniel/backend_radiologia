@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeamController = void 0;
 const Team_1 = __importDefault(require("../models/Team"));
 class TeamController {
-    // Obtener todos los equipos
     getAllTeams(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -23,78 +22,119 @@ class TeamController {
                 res.status(200).json({ teams });
             }
             catch (error) {
-                console.error("getAllTeams error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error fetching teams" });
             }
         });
     }
-    // Obtener un equipo por ID
     getTeamById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id: pk } = req.params;
                 const team = yield Team_1.default.findOne({ where: { id: pk } });
                 if (team) {
-                    res.status(200).json(team);
+                    res.status(200).json({ team });
                 }
                 else {
                     res.status(404).json({ error: "Team not found" });
                 }
             }
             catch (error) {
-                console.error("getTeamById error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error fetching team" });
             }
         });
     }
-    // Crear un nuevo equipo
     createTeam(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { nombre, modality_id, ubicacion, estado, observaciones } = req.body;
             try {
-                const body = req.body;
-                const team = yield Team_1.default.create(body);
-                res.status(201).json(team);
+                const body = {
+                    nombre,
+                    modality_id,
+                    ubicacion,
+                    estado,
+                    observaciones,
+                };
+                const newTeam = yield Team_1.default.create(body);
+                res.status(201).json(newTeam);
             }
             catch (error) {
-                console.error("createTeam error:", error);
-                res.status(500).json({ error: "Error creating team" });
+                console.error(error);
+                res
+                    .status(400)
+                    .json({ error: (_a = error.message) !== null && _a !== void 0 ? _a : "Error creating team" });
             }
         });
     }
-    // Actualizar un equipo por ID
     updateTeam(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { id: pk } = req.params;
+            const { nombre, modality_id, ubicacion, estado, observaciones } = req.body;
             try {
-                const { id: pk } = req.params;
-                const body = req.body;
-                const team = yield Team_1.default.findByPk(pk);
-                if (!team) {
-                    return res.status(404).json({ error: "Team not found" });
+                const body = {
+                    nombre,
+                    modality_id,
+                    ubicacion,
+                    estado,
+                    observaciones,
+                };
+                const teamExist = yield Team_1.default.findByPk(pk);
+                if (teamExist) {
+                    yield teamExist.update(body);
+                    res.status(200).json(teamExist);
                 }
-                yield team.update(body);
-                res.status(200).json(team);
+                else {
+                    res.status(404).json({ error: "Team not found" });
+                }
             }
             catch (error) {
-                console.error("updateTeam error:", error);
-                res.status(500).json({ error: "Error updating team" });
+                console.error(error);
+                res
+                    .status(400)
+                    .json({ error: (_a = error.message) !== null && _a !== void 0 ? _a : "Error updating team" });
             }
         });
     }
-    // Eliminar un equipo (borrado físico)
     deleteTeam(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const team = yield Team_1.default.findByPk(pk);
-                if (!team) {
-                    return res.status(404).json({ error: "Team not found" });
+                const { id } = req.params;
+                const teamToDelete = yield Team_1.default.findByPk(id);
+                if (teamToDelete) {
+                    yield teamToDelete.destroy();
+                    res.status(200).json({ message: "Team deleted successfully" });
                 }
-                yield team.destroy();
-                res.status(200).json({ message: "Team deleted" });
+                else {
+                    res.status(404).json({ error: "Team not found" });
+                }
             }
             catch (error) {
-                console.error("deleteTeam error:", error);
+                console.error(error);
                 res.status(500).json({ error: "Error deleting team" });
+            }
+        });
+    }
+    deleteTeamAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const teamToUpdate = yield Team_1.default.findByPk(pk);
+                if (teamToUpdate) {
+                    yield teamToUpdate.update({ estado: "MANTENIMIENTO" });
+                    res.status(200).json({ message: "Team marked as MANTENIMIENTO" });
+                }
+                else {
+                    res.status(404).json({ error: "Team not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res
+                    .status(500)
+                    .json({ error: "Error marking team as MANTENIMIENTO" });
             }
         });
     }

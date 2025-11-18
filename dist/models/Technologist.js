@@ -10,6 +10,11 @@ class Technologist extends sequelize_1.Model {
 }
 exports.Technologist = Technologist;
 Technologist.init({
+    id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
     nombre: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
@@ -23,7 +28,7 @@ Technologist.init({
         allowNull: false,
         validate: {
             notEmpty: { msg: "Phone cannot be empty" },
-            len: { args: [7, 15], msg: "Phone must be between 7 and 15 digits" },
+            len: { args: [7, 20], msg: "Phone must be between 7 and 20 chars" },
         },
     },
     correo: {
@@ -44,4 +49,5 @@ Technologist.init({
     tableName: "technologists",
     timestamps: false,
 });
+exports.default = Technologist;
 //# sourceMappingURL=Technologist.js.map

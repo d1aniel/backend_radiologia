@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Technologist, TechnologistAttrs } from "../models/Technologist"; // ajusta ruta si la tienes distinta
+import { Technologist, TechnologistAttrs } from "../models/Technologist"; 
 
 export class TechnologistController {
-  // Get all technologists with status "ACTIVE"
+  
   public async getAllTechnologists(req: Request, res: Response) {
     try {
       const technologists: TechnologistAttrs[] = await Technologist.findAll({
@@ -15,7 +15,7 @@ export class TechnologistController {
     }
   }
 
-  // Get a technologist by ID (wrapped in an object like en el profe)
+  
   public async getTechnologistById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -34,7 +34,7 @@ export class TechnologistController {
     }
   }
 
-  // Create a new technologist
+  
   public async createTechnologist(req: Request, res: Response) {
     const { nombre, especialidad, telefono, correo, status } = req.body;
 
@@ -51,12 +51,12 @@ export class TechnologistController {
       res.status(201).json(newTechnologist);
     } catch (error: any) {
       console.error(error);
-      // si viene validation error de Sequelize, devolver 400 con el mensaje
+      
       res.status(400).json({ error: error.message });
     }
   }
 
-  // Update a technologist (only if ACTIVE)
+  
   public async updateTechnologist(req: Request, res: Response) {
     const { id: pk } = req.params;
     const { nombre, especialidad, telefono, correo, status } = req.body;
@@ -86,7 +86,7 @@ export class TechnologistController {
     }
   }
 
-  // Delete a technologist physically (destroy)
+  
   public async deleteTechnologist(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -104,7 +104,7 @@ export class TechnologistController {
     }
   }
 
-  // Delete a technologist logically (mark status = INACTIVE)
+  
   public async deleteTechnologistAdv(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

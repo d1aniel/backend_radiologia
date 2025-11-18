@@ -10,6 +10,13 @@ import { ReportRoutes } from "./report";
 import { TeamRoutes } from "./team";
 import { StudyRoutes } from "./studie";
 import { TechnologistRoutes } from "./technologist";
+import { UserRoutes } from "./authorization/user";
+import { RoleRoutes } from "./authorization/role";
+import { RoleUserRoutes } from "./authorization/role_user";
+import { ResourceRoutes } from "./authorization/resource";
+import { ResourceRoleRoutes } from "./authorization/resourcerole";
+import { RefreshTokenRoutes } from "./authorization/refres_token";
+import { AuthRoutes } from "./authorization/auth";
 export declare class Routes {
     patientRoutes: PatientRoutes;
     doctorRoutes: DoctorRoutes;
@@ -22,6 +29,13 @@ export declare class Routes {
     teamRoutes: TeamRoutes;
     studyRoutes: StudyRoutes;
     technologistRoutes: TechnologistRoutes;
+    userRoutes: UserRoutes;
+    roleRoutes: RoleRoutes;
+    roleUserRoutes: RoleUserRoutes;
+    resourceRoutes: ResourceRoutes;
+    resourceRoleRoutes: ResourceRoleRoutes;
+    refreshTokenRoutes: RefreshTokenRoutes;
+    authRoutes: AuthRoutes;
     routes(app: Application): void;
 }
 //# sourceMappingURL=index.d.ts.map

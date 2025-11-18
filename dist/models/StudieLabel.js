@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudyLabel = void 0;
-// src/models/StudyLabel.ts
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../database/connection"));
 class StudyLabel extends sequelize_1.Model {
@@ -36,7 +35,7 @@ StudyLabel.init({
     tableName: 'study_labels',
     timestamps: false,
     indexes: [
-        { unique: true, fields: ['study_id', 'label_id'] }, // evita duplicados
+        { unique: true, fields: ['study_id', 'label_id'] },
         { fields: ['label_id'] }
     ],
 });

@@ -1,9 +1,9 @@
-// src/controllers/modalidad.controller.ts
+
 import { Request, Response } from "express";
-import { Modalidad, ModalidadI } from "../models/Modalitie"; // ajusta el path/nombre si es Modalitie
+import { Modalidad, ModalidadI } from "../models/Modalitie"; 
 
 export class ModalidadController {
-  // Obtener todas las modalidades activas
+  
   public async getAllModalidades(req: Request, res: Response) {
     try {
       const modalidades: ModalidadI[] = await Modalidad.findAll({
@@ -16,7 +16,7 @@ export class ModalidadController {
     }
   }
 
-  // Obtener modalidad por ID
+  
   public async getModalidadById(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
@@ -37,12 +37,12 @@ export class ModalidadController {
     }
   }
 
-  // Crear nueva modalidad
+  
   public async createModalidad(req: Request, res: Response) {
     try {
       const { nombre, descripcion, activa } = req.body as Partial<ModalidadI>;
 
-      // validación mínima
+      
       if (!nombre || String(nombre).trim().length < 2) {
         return res.status(400).json({ error: "Nombre es obligatorio (mín 2 caracteres)" });
       }
@@ -60,12 +60,12 @@ export class ModalidadController {
       return res.status(201).json({ modalidad });
     } catch (error: any) {
       console.error("[createModalidad] ", error);
-      // si sequelize lanza validación, devuelvo su mensaje
+      
       return res.status(400).json({ error: error?.message ?? "Error creating modalidad" });
     }
   }
 
-  // Actualizar modalidad por ID
+  
   public async updateModalidad(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
@@ -76,7 +76,7 @@ export class ModalidadController {
       const modalidad = await Modalidad.findByPk(id);
       if (!modalidad) return res.status(404).json({ error: "Modalidad not found" });
 
-      // Opcional: validar campos si vienen
+      
       if (body.nombre && String(body.nombre).trim().length < 2) {
         return res.status(400).json({ error: "Nombre inválido (mín 2 caracteres)" });
       }
@@ -97,7 +97,7 @@ export class ModalidadController {
     }
   }
 
-  // Eliminar (marcar activa = false) — eliminación lógica
+  
   public async deleteModalidad(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
@@ -106,7 +106,7 @@ export class ModalidadController {
       const modalidad = await Modalidad.findByPk(id);
       if (!modalidad) return res.status(404).json({ error: "Modalidad not found" });
 
-      // Marcar como inactiva
+      
       await modalidad.update({ activa: false });
 
       return res.status(200).json({ message: "Modalidad marked as inactive" });
@@ -116,7 +116,7 @@ export class ModalidadController {
     }
   }
 
-  // borrar lógico — marcar activa = false
+  
 public async deleteModalidadAdv(req: Request, res: Response) {
   try {
     const id = Number(req.params.id);

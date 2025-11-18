@@ -1,8 +1,5 @@
 import { Dialect, Sequelize } from "sequelize";
 declare const sequelize: Sequelize;
-/**
- * Devuelve información útil para logging/debug.
- */
 export declare const getDatabaseInfo: () => {
     engine: string;
     config: {
@@ -14,9 +11,6 @@ export declare const getDatabaseInfo: () => {
     };
     connectionString: string;
 };
-/**
- * Prueba la conexión con authenticate(). Devuelve true si ok.
- */
 export declare const testConnection: () => Promise<boolean>;
 export { sequelize };
 export default sequelize;

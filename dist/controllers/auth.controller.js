@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const User_1 = require("../models/authorization/User");
-const RefreshToken_1 = require("../models/authorization/RefreshToken");
 class AuthController {
     register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -19,7 +18,6 @@ class AuthController {
                 const { username, email, password, is_active, avatar } = req.body;
                 const user_interface = yield User_1.User.create({ username, email, password, is_active, avatar });
                 const token = user_interface.generateToken();
-                // const refresh_token = user_interface.generateRefreshToken();
                 res.status(201).json({ user_interface, token });
             }
             catch (error) {
@@ -42,16 +40,7 @@ class AuthController {
                     return;
                 }
                 const token = user.generateToken();
-                const { token: refreshToken, expiresAt } = user.generateRefreshToken();
-                // Crear un nuevo registro en RefreshToken
-                yield RefreshToken_1.RefreshToken.create({
-                    user_id: user.id,
-                    token: refreshToken,
-                    device_info: req.headers['user-agent'] || 'unknown',
-                    is_valid: true,
-                    expires_at: expiresAt
-                });
-                res.status(200).json({ user, token, refreshToken });
+                res.status(200).json({ user, token });
             }
             catch (error) {
                 res.status(500).json({ error: 'Error al iniciar sesión' });

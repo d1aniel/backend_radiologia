@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceRoleController = void 0;
 const ResourceRole_1 = require("../models/authorization/ResourceRole");
 class ResourceRoleController {
-    // Obtener todos los ResourceRoles
     getAllResourceRoles(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -26,7 +25,6 @@ class ResourceRoleController {
             }
         });
     }
-    // Obtener un ResourceRole por ID
     getResourceRoleById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -46,7 +44,6 @@ class ResourceRoleController {
             }
         });
     }
-    // Crear un nuevo ResourceRole
     createResourceRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { resource_id, role_id, is_active } = req.body;
@@ -59,7 +56,6 @@ class ResourceRoleController {
             }
         });
     }
-    // Actualizar un ResourceRole
     updateResourceRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -79,7 +75,6 @@ class ResourceRoleController {
             }
         });
     }
-    // Eliminar un ResourceRole físicamente
     deleteResourceRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
@@ -98,7 +93,6 @@ class ResourceRoleController {
             }
         });
     }
-    // Eliminar un ResourceRole lógicamente
     deleteResourceRoleAdv(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;

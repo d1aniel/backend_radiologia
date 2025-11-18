@@ -18,8 +18,6 @@ const Role_1 = require("./authorization/Role");
 const RoleUser_1 = require("./authorization/RoleUser");
 const Resource_1 = require("./authorization/Resource");
 const ResourceRole_1 = require("./authorization/ResourceRole");
-/* === relaciones ya existentes === */
-// Paciente -> Estudios
 Pacient_1.Patient.hasMany(Studie_1.Study, {
     foreignKey: "patient_id",
     sourceKey: "id",
@@ -27,8 +25,8 @@ Pacient_1.Patient.hasMany(Studie_1.Study, {
 Studie_1.Study.belongsTo(Pacient_1.Patient, {
     foreignKey: "patient_id",
     targetKey: "id",
+    as: "patient",
 });
-// Estudio -> Imágenes
 Studie_1.Study.hasMany(Image_1.Image, {
     sourceKey: "id",
     foreignKey: "estudioId",
@@ -39,7 +37,6 @@ Image_1.Image.belongsTo(Studie_1.Study, {
     foreignKey: "estudioId",
     as: "estudio",
 });
-// Estudios <-> Labels (muchos a muchos)
 Studie_1.Study.belongsToMany(Label_1.Label, {
     through: StudieLabel_1.StudyLabel,
     foreignKey: "study_id",
@@ -52,7 +49,6 @@ Label_1.Label.belongsToMany(Studie_1.Study, {
     otherKey: "study_id",
     as: "studies",
 });
-// Doctor -> Estudios
 Doctor_1.Doctor.hasMany(Studie_1.Study, {
     foreignKey: "medico_id",
     sourceKey: "id",
@@ -62,7 +58,6 @@ Studie_1.Study.belongsTo(Doctor_1.Doctor, {
     targetKey: "id",
     as: "doctor",
 });
-// Doctor -> Reportes
 Doctor_1.Doctor.hasMany(Report_1.Report, {
     foreignKey: "medico_id",
     sourceKey: "id",
@@ -72,7 +67,6 @@ Report_1.Report.belongsTo(Doctor_1.Doctor, {
     targetKey: "id",
     as: "firmante",
 });
-// Technologist -> Estudios
 Technologist_1.Technologist.hasMany(Studie_1.Study, {
     foreignKey: "technologist_id",
     sourceKey: "id",
@@ -82,7 +76,6 @@ Studie_1.Study.belongsTo(Technologist_1.Technologist, {
     targetKey: "id",
     as: "technologist_user",
 });
-// Modalidad -> Estudios
 Modalitie_1.Modalidad.hasMany(Studie_1.Study, {
     foreignKey: "modality_id",
     sourceKey: "id",
@@ -92,7 +85,6 @@ Studie_1.Study.belongsTo(Modalitie_1.Modalidad, {
     targetKey: "id",
     as: "modalidad_obj",
 });
-// Team -> Estudios
 Team_1.Team.hasMany(Studie_1.Study, {
     foreignKey: "team_id",
     sourceKey: "id",
@@ -102,7 +94,6 @@ Studie_1.Study.belongsTo(Team_1.Team, {
     targetKey: "id",
     as: "team_obj",
 });
-// Modalidad -> Team
 Modalitie_1.Modalidad.hasMany(Team_1.Team, {
     foreignKey: "modality_id",
     sourceKey: "id",
@@ -112,7 +103,6 @@ Team_1.Team.belongsTo(Modalitie_1.Modalidad, {
     targetKey: "id",
     as: "modalidad_obj",
 });
-// Quote -> Estudios
 Quote_1.Quote.hasMany(Studie_1.Study, {
     foreignKey: "quote_id",
     sourceKey: "id",
@@ -122,7 +112,6 @@ Studie_1.Study.belongsTo(Quote_1.Quote, {
     targetKey: "id",
     as: "cita_obj",
 });
-// Patient -> Quote
 Pacient_1.Patient.hasMany(Quote_1.Quote, {
     foreignKey: "patient_id",
     sourceKey: "id",
@@ -132,7 +121,6 @@ Quote_1.Quote.belongsTo(Pacient_1.Patient, {
     targetKey: "id",
     as: "paciente_obj",
 });
-// Payments -> Patient
 Pacient_1.Patient.hasMany(Payment_1.Payment, {
     foreignKey: "patient_id",
     sourceKey: "id",
@@ -141,7 +129,6 @@ Payment_1.Payment.belongsTo(Pacient_1.Patient, {
     foreignKey: "patient_id",
     targetKey: "id",
 });
-// Payments -> Quote
 Quote_1.Quote.hasMany(Payment_1.Payment, {
     foreignKey: "quote_id",
     sourceKey: "id",
@@ -150,7 +137,6 @@ Payment_1.Payment.belongsTo(Quote_1.Quote, {
     foreignKey: "quote_id",
     targetKey: "id",
 });
-/* === módulo de autorización === */
 User_1.User.hasMany(RefreshToken_1.RefreshToken, {
     foreignKey: "user_id",
     sourceKey: "id",
@@ -191,8 +177,6 @@ ResourceRole_1.ResourceRole.belongsTo(Role_1.Role, {
     foreignKey: "role_id",
     targetKey: "id",
 });
-/* === asociaciones N:N === */
-// Doctor <-> Modalidad
 Doctor_1.Doctor.belongsToMany(Modalitie_1.Modalidad, {
     through: "doctor_modalidades",
     foreignKey: "doctor_id",
@@ -205,7 +189,6 @@ Modalitie_1.Modalidad.belongsToMany(Doctor_1.Doctor, {
     otherKey: "doctor_id",
     as: "doctores",
 });
-// Technologist <-> Team
 Technologist_1.Technologist.belongsToMany(Team_1.Team, {
     through: "technologist_teams",
     foreignKey: "technologist_id",
@@ -217,5 +200,25 @@ Team_1.Team.belongsToMany(Technologist_1.Technologist, {
     foreignKey: "team_id",
     otherKey: "technologist_id",
     as: "technologists",
+});
+Technologist_1.Technologist.hasMany(Quote_1.Quote, {
+    foreignKey: "technologist_id",
+    sourceKey: "id",
+    as: "quotes",
+});
+Quote_1.Quote.belongsTo(Technologist_1.Technologist, {
+    foreignKey: "technologist_id",
+    targetKey: "id",
+    as: "technologist_obj",
+});
+Studie_1.Study.hasOne(Report_1.Report, {
+    foreignKey: "estudio_id",
+    sourceKey: "id",
+    as: "informe",
+});
+Report_1.Report.belongsTo(Studie_1.Study, {
+    foreignKey: "estudio_id",
+    targetKey: "id",
+    as: "estudio",
 });
 //# sourceMappingURL=associations.js.map

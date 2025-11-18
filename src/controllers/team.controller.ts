@@ -1,13 +1,13 @@
-// src/controllers/team.controller.ts
+
 import { Request, Response } from "express";
-import Team, { TeamI, EstadoTeam } from "../models/Team"; // ojo al nombre del archivo
+import Team, { TeamI, EstadoTeam } from "../models/Team"; 
 
 export class TeamController {
-  // Obtener todos los equipos
+  
   public async getAllTeams(req: Request, res: Response) {
     try {
       const teams: TeamI[] = await Team.findAll();
-      // mantenemos el envoltorio { teams }
+      
       res.status(200).json({ teams });
     } catch (error) {
       console.error(error);
@@ -15,7 +15,7 @@ export class TeamController {
     }
   }
 
-  // Obtener un equipo por ID
+  
   public async getTeamById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -32,7 +32,7 @@ export class TeamController {
     }
   }
 
-  // Crear un nuevo equipo
+  
   public async createTeam(req: Request, res: Response) {
     const { nombre, modality_id, ubicacion, estado, observaciones } = req.body;
 
@@ -55,7 +55,7 @@ export class TeamController {
     }
   }
 
-  // Actualizar un equipo (si existe)
+  
   public async updateTeam(req: Request, res: Response) {
     const { id: pk } = req.params;
     const { nombre, modality_id, ubicacion, estado, observaciones } = req.body;
@@ -85,7 +85,7 @@ export class TeamController {
     }
   }
 
-  // Eliminar un equipo físicamente (destroy)
+  
   public async deleteTeam(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -103,7 +103,7 @@ export class TeamController {
     }
   }
 
-  // "Borrado lógico": marcar equipo como MANTENIMIENTO
+  
   public async deleteTeamAdv(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

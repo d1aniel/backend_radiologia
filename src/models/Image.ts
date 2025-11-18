@@ -1,4 +1,4 @@
-// src/models/Image.ts
+
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/connection";
 
@@ -6,8 +6,8 @@ export type TipoImagen = "DICOM" | "JPG" | "PNG" | "Serie";
 
 export interface ImageI {
   id?: number;
-  estudioId: number;         // FK -> studies.id
-  tipo: TipoImagen;          // DICOM/JPG/PNG/Serie
+  estudioId: number;         
+  tipo: TipoImagen;          
   url: string;
   nombreArchivo: string;
   tamanoBytes: number;

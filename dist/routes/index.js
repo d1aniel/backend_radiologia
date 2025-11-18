@@ -12,6 +12,13 @@ const report_1 = require("./report");
 const team_1 = require("./team");
 const studie_1 = require("./studie");
 const technologist_1 = require("./technologist");
+const user_1 = require("./authorization/user");
+const role_1 = require("./authorization/role");
+const role_user_1 = require("./authorization/role_user");
+const resource_1 = require("./authorization/resource");
+const resourcerole_1 = require("./authorization/resourcerole");
+const refres_token_1 = require("./authorization/refres_token");
+const auth_1 = require("./authorization/auth");
 class Routes {
     constructor() {
         this.patientRoutes = new pacient_1.PatientRoutes();
@@ -25,30 +32,34 @@ class Routes {
         this.teamRoutes = new team_1.TeamRoutes();
         this.studyRoutes = new studie_1.StudyRoutes();
         this.technologistRoutes = new technologist_1.TechnologistRoutes();
+        this.userRoutes = new user_1.UserRoutes();
+        this.roleRoutes = new role_1.RoleRoutes();
+        this.roleUserRoutes = new role_user_1.RoleUserRoutes();
+        this.resourceRoutes = new resource_1.ResourceRoutes();
+        this.resourceRoleRoutes = new resourcerole_1.ResourceRoleRoutes();
+        this.refreshTokenRoutes = new refres_token_1.RefreshTokenRoutes();
+        this.authRoutes = new auth_1.AuthRoutes();
     }
     routes(app) {
-        // rutas de pacientes
         this.patientRoutes.routes(app);
-        // rutas de doctores
         this.doctorRoutes.routes(app);
-        // rutas de imágenes
         this.imageRoutes.routes(app);
-        // rutas de etiquetas
         this.labelRoutes.routes(app);
-        // rutas de modalidades
         this.modalidadRoutes.routes(app);
-        // rutas de pagos
         this.paymentRoutes.routes(app);
-        // rutas de citas
         this.quoteRoutes.routes(app);
-        // rutas de informe
         this.quoteRoutes.routes(app);
-        // rutas de equipos
         this.teamRoutes.routes(app);
-        // rutas de estudios
         this.studyRoutes.routes(app);
-        // rutas de tecnólogos
         this.technologistRoutes.routes(app);
+        this.userRoutes.routes(app);
+        this.roleRoutes.routes(app);
+        this.roleUserRoutes.routes(app);
+        this.resourceRoutes.routes(app);
+        this.resourceRoleRoutes.routes(app);
+        this.refreshTokenRoutes.routes(app);
+        this.authRoutes.routes(app);
+        this.reportRoutes.routes(app);
     }
 }
 exports.Routes = Routes;

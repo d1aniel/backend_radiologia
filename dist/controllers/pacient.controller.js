@@ -12,21 +12,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PatientController = void 0;
 const Pacient_1 = require("../models/Pacient");
 class PatientController {
-    // Obtener todos los pacientes activos
     getAllPatients(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const patients = yield Pacient_1.Patient.findAll({
                     where: { status: "ACTIVATE" },
                 });
-                res.status(200).json({ patients });
+                res.status(200).json(patients);
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching patients" });
             }
         });
     }
-    // Obtener un paciente por ID
     getPatientById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -42,55 +41,105 @@ class PatientController {
                 }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error fetching patient" });
             }
         });
     }
-    // Crear un nuevo paciente
     createPatient(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { nombre, apellido, tpdocumento, sexo, documento, telefono, eps, correo, status, } = req.body;
             try {
-                const body = req.body;
-                const patient = yield Pacient_1.Patient.create(body);
-                res.status(201).json(patient);
+                const body = {
+                    nombre,
+                    apellido,
+                    tpdocumento,
+                    sexo,
+                    documento,
+                    telefono,
+                    eps,
+                    correo,
+                    status,
+                };
+                const newPatient = yield Pacient_1.Patient.create(Object.assign({}, body));
+                res.status(201).json(newPatient);
             }
             catch (error) {
-                res.status(500).json({ error: "Error creating patient" });
+                console.error(error);
+                res.status(400).json({ error: error.message });
             }
         });
     }
-    // Actualizar un paciente por ID
     updatePatient(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { id: pk } = req.params;
+            const { nombre, apellido, tpdocumento, sexo, documento, telefono, eps, correo, status, } = req.body;
             try {
-                const { id: pk } = req.params;
-                const body = req.body;
-                const patient = yield Pacient_1.Patient.findByPk(pk);
-                if (!patient) {
-                    return res.status(404).json({ error: "Patient not found" });
+                const body = {
+                    nombre,
+                    apellido,
+                    tpdocumento,
+                    sexo,
+                    documento,
+                    telefono,
+                    eps,
+                    correo,
+                    status,
+                };
+                const patientExist = yield Pacient_1.Patient.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (patientExist) {
+                    yield patientExist.update(body, { where: { id: pk } });
+                    res.status(200).json(patientExist);
                 }
-                yield patient.update(body);
-                res.status(200).json(patient);
+                else {
+                    res.status(404).json({ error: "Patient not found or inactive" });
+                }
             }
             catch (error) {
-                res.status(500).json({ error: "Error updating patient" });
+                console.error(error);
+                res.status(400).json({ error: error.message });
             }
         });
     }
-    // Eliminar (cambiar status a INACTIVE)
     deletePatient(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id: pk } = req.params;
-                const patient = yield Pacient_1.Patient.findByPk(pk);
-                if (!patient) {
-                    return res.status(404).json({ error: "Patient not found" });
+                const { id } = req.params;
+                const patientToDelete = yield Pacient_1.Patient.findByPk(id);
+                if (patientToDelete) {
+                    yield patientToDelete.destroy();
+                    res.status(200).json({ message: "Patient deleted successfully" });
                 }
-                yield patient.update({ status: "INACTIVE" });
-                res.status(200).json({ message: "Patient set to INACTIVE" });
+                else {
+                    res.status(404).json({ error: "Patient not found" });
+                }
             }
             catch (error) {
+                console.error(error);
                 res.status(500).json({ error: "Error deleting patient" });
+            }
+        });
+    }
+    deletePatientAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const patientToUpdate = yield Pacient_1.Patient.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (patientToUpdate) {
+                    yield patientToUpdate.update({ status: "INACTIVE" });
+                    res.status(200).json({ message: "Patient marked as inactive" });
+                }
+                else {
+                    res.status(404).json({ error: "Patient not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error marking patient as inactive" });
             }
         });
     }

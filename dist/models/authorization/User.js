@@ -29,13 +29,11 @@ class User extends sequelize_1.Model {
         });
     }
     generateRefreshToken() {
-        // const expiresIn = '24H';
         const expiresIn = "5m";
         const token = jsonwebtoken_1.default.sign({ id: this.id }, process.env.JWT_SECRET || "secret", {
             expiresIn,
         });
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 1 minutos
-        // const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
         return { token, expiresAt };
     }
 }

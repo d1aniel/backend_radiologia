@@ -2,23 +2,36 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModalidadRoutes = void 0;
 const modalitie_controller_1 = require("../controllers/modalitie.controller");
+const auth_1 = require("../middleware/auth");
 class ModalidadRoutes {
     constructor() {
         this.modalidadController = new modalitie_controller_1.ModalidadController();
     }
     routes(app) {
-        // Obtener todas las modalidades activas
-        app.route("/modalidades").get(this.modalidadController.getAllModalidades);
-        // Obtener modalidad por ID
-        app.route("/modalidades/:id").get(this.modalidadController.getModalidadById);
-        // Crear nueva modalidad
-        app.route("/modalidades").post(this.modalidadController.createModalidad);
-        // Actualizar modalidad por ID
-        app.route("/modalidades/:id").put(this.modalidadController.updateModalidad);
-        // Eliminar modalidad (status = inactiva)
         app
-            .route("/modalidades/:id")
+            .route("/api/modalidades/public")
+            .get(this.modalidadController.getAllModalidades)
+            .post(this.modalidadController.createModalidad);
+        app
+            .route("/api/modalidades/public/:id")
+            .get(this.modalidadController.getModalidadById)
+            .patch(this.modalidadController.updateModalidad)
             .delete(this.modalidadController.deleteModalidad);
+        app
+            .route("/api/modalidades/public/:id/logic")
+            .delete(this.modalidadController.deleteModalidadAdv);
+        app
+            .route("/api/modalidades")
+            .get(auth_1.authMiddleware, this.modalidadController.getAllModalidades)
+            .post(auth_1.authMiddleware, this.modalidadController.createModalidad);
+        app
+            .route("/api/modalidades/:id")
+            .get(auth_1.authMiddleware, this.modalidadController.getModalidadById)
+            .patch(auth_1.authMiddleware, this.modalidadController.updateModalidad)
+            .delete(auth_1.authMiddleware, this.modalidadController.deleteModalidad);
+        app
+            .route("/api/modalidades/:id/logic")
+            .delete(auth_1.authMiddleware, this.modalidadController.deleteModalidadAdv);
     }
 }
 exports.ModalidadRoutes = ModalidadRoutes;

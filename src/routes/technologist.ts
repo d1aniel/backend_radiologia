@@ -1,4 +1,4 @@
-// src/routes/technologist.routes.ts
+
 import { Application } from "express";
 import { TechnologistController } from "../controllers/technologist.controller";
 import { authMiddleware } from "../middleware/auth";
@@ -7,7 +7,7 @@ export class TechnologistRoutes {
   public technologistController: TechnologistController = new TechnologistController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/tecnologos/public")
       .get(this.technologistController.getAllTechnologists)
       .post(this.technologistController.createTechnologist);

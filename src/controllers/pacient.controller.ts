@@ -1,9 +1,9 @@
-// src/controllers/patient.controller.ts
+
 import { Request, Response } from "express";
-import { Patient, PatientI } from "../models/Pacient"; // <- ajusta la ruta/nombre si tu archivo es Pacient.ts
+import { Patient, PatientI } from "../models/Pacient"; 
 
 export class PatientController {
-  // Get all patients with status "ACTIVATE"
+  
   public async getAllPatients(req: Request, res: Response) {
     try {
       const patients: PatientI[] = await Patient.findAll({
@@ -16,7 +16,7 @@ export class PatientController {
     }
   }
 
-  // Get a patient by ID
+  
   public async getPatientById(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;
@@ -25,7 +25,7 @@ export class PatientController {
       });
 
       if (patient) {
-        // el profe envuelve el resultado en un objeto
+        
         res.status(200).json( patient );
       } else {
         res.status(404).json({ error: "Patient not found or inactive" });
@@ -36,7 +36,7 @@ export class PatientController {
     }
   }
 
-  // Create a new patient
+  
   public async createPatient(req: Request, res: Response) {
     const {
       nombre,
@@ -71,7 +71,7 @@ export class PatientController {
     }
   }
 
-  // Update a patient (only if ACTIVE)
+  
   public async updatePatient(req: Request, res: Response) {
     const { id: pk } = req.params;
     const {
@@ -115,7 +115,7 @@ export class PatientController {
     }
   }
 
-  // Delete a patient physically (destroy)
+  
   public async deletePatient(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -133,7 +133,7 @@ export class PatientController {
     }
   }
 
-  // Delete a patient logically (mark status = INACTIVE)
+  
   public async deletePatientAdv(req: Request, res: Response) {
     try {
       const { id: pk } = req.params;

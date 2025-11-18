@@ -3,7 +3,7 @@ export type EstadoTeam = "DISPONIBLE" | "MANTENIMIENTO" | "OCUPADO";
 export interface TeamI {
     id?: number;
     nombre: string;
-    modalidad: string;
+    modality_id: number;
     ubicacion: string;
     estado: EstadoTeam;
     observaciones?: string;
@@ -11,7 +11,7 @@ export interface TeamI {
 export declare class Team extends Model<TeamI> {
     id: number;
     nombre: string;
-    modalidad: string;
+    modality_id: number;
     ubicacion: string;
     estado: EstadoTeam;
     observaciones?: string;

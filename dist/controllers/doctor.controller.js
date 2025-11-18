@@ -8,139 +8,153 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DoctorController = void 0;
-const Doctor_1 = __importDefault(require("../models/Doctor"));
-const sequelize_1 = require("sequelize");
+const Doctor_1 = require("../models/Doctor");
 class DoctorController {
-    constructor() {
-        /**
-         * GET /api/doctors
-         * List all doctors
-         */
-        this.getAllDoctors = (req, res) => __awaiter(this, void 0, void 0, function* () {
+    getAllDoctors(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
             try {
-                const doctors = yield Doctor_1.default.findAll();
-                return res.status(200).json({ ok: true, data: doctors });
+                const doctors = yield Doctor_1.Doctor.findAll({
+                    where: { status: "ACTIVATE" },
+                });
+                res.status(200).json({ doctors });
             }
             catch (error) {
-                console.error('getAllDoctors error:', error);
-                return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+                console.error(error);
+                res.status(500).json({ error: "Error fetching doctors" });
             }
         });
-        /**
-         * GET /api/doctors/:id
-         * Get one doctor by id
-         */
-        this.getDoctorById = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { id } = req.params;
+    }
+    getDoctorById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
             try {
-                const doctor = yield Doctor_1.default.findByPk(id);
-                if (!doctor) {
-                    return res.status(404).json({ ok: false, message: 'Doctor no encontrado' });
+                const { id: pk } = req.params;
+                const doctor = yield Doctor_1.Doctor.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (doctor) {
+                    res.status(200).json({ doctor });
                 }
-                return res.status(200).json({ ok: true, data: doctor });
+                else {
+                    res.status(404).json({ error: "Doctor not found or inactive" });
+                }
             }
             catch (error) {
-                console.error('getDoctorById error:', error);
-                return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+                console.error(error);
+                res.status(500).json({ error: "Error fetching doctor" });
             }
         });
-        /**
-         * POST /api/doctors
-         * Create a doctor
-         * Body: { nombre, especialidad, telefono, correo, registro? }
-         * status se establece por defecto a "ACTIVATE"
-         */
-        this.createDoctor = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { nombre, especialidad, telefono, correo, registro } = req.body;
-            // validación simple del servidor (complementar con express-validator si quieres)
-            if (!nombre || !especialidad || !telefono || !correo) {
-                return res.status(400).json({ ok: false, message: 'Faltan campos requeridos' });
-            }
+    }
+    createDoctor(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { nombre, especialidad, telefono, correo, registro, status } = req.body;
             try {
-                const nuevo = yield Doctor_1.default.create({
+                const body = {
                     nombre,
                     especialidad,
                     telefono: String(telefono),
                     correo,
                     registro: registro || null,
-                    // status default ya definido en el modelo, pero lo podemos forzar:
-                    status: 'ACTIVATE'
-                });
-                return res.status(201).json({ ok: true, data: nuevo });
-            }
-            catch (err) {
-                console.error('createDoctor error:', err);
-                if (err instanceof sequelize_1.UniqueConstraintError) {
-                    // por ejemplo: correo duplicado
-                    return res.status(409).json({ ok: false, message: 'Correo ya registrado' });
-                }
-                if (err instanceof sequelize_1.ValidationError) {
-                    return res.status(400).json({ ok: false, message: err.errors.map(e => e.message) });
-                }
-                return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
-            }
-        });
-        /**
-         * PUT /api/doctors/:id
-         * Update doctor (puedes actualizar nombre, especialidad, telefono, correo, registro, status)
-         */
-        this.updateDoctor = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { id } = req.params;
-            const { nombre, especialidad, telefono, correo, registro, status } = req.body;
-            try {
-                const doctor = yield Doctor_1.default.findByPk(id);
-                if (!doctor) {
-                    return res.status(404).json({ ok: false, message: 'Doctor no encontrado' });
-                }
-                // actualizar solo los campos presentes
-                if (nombre !== undefined)
-                    doctor.nombre = nombre;
-                if (especialidad !== undefined)
-                    doctor.especialidad = especialidad;
-                if (telefono !== undefined)
-                    doctor.telefono = String(telefono);
-                if (correo !== undefined)
-                    doctor.correo = correo;
-                if (registro !== undefined)
-                    doctor.registro = registro;
-                if (status !== undefined)
-                    doctor.status = status;
-                yield doctor.save();
-                return res.status(200).json({ ok: true, data: doctor });
-            }
-            catch (err) {
-                console.error('updateDoctor error:', err);
-                if (err instanceof sequelize_1.UniqueConstraintError) {
-                    return res.status(409).json({ ok: false, message: 'Correo ya registrado' });
-                }
-                if (err instanceof sequelize_1.ValidationError) {
-                    return res.status(400).json({ ok: false, message: err.errors.map(e => e.message) });
-                }
-                return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
-            }
-        });
-        /**
-         * DELETE /api/doctors/:id
-         * Hard delete (si prefieres soft delete, cambia a update status = INACTIVE)
-         */
-        this.deleteDoctor = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { id } = req.params;
-            try {
-                const doctor = yield Doctor_1.default.findByPk(id);
-                if (!doctor) {
-                    return res.status(404).json({ ok: false, message: 'Doctor no encontrado' });
-                }
-                yield doctor.destroy();
-                return res.status(200).json({ ok: true, message: 'Doctor eliminado' });
+                    status: "ACTIVATE",
+                };
+                const newDoctor = yield Doctor_1.Doctor.create(Object.assign({}, body));
+                res.status(201).json(newDoctor);
             }
             catch (error) {
-                console.error('deleteDoctor error:', error);
-                return res.status(500).json({ ok: false, message: 'Error interno del servidor' });
+                console.error(error);
+                if (error.name === "SequelizeUniqueConstraintError") {
+                    return res.status(409).json({ error: "Correo ya registrado" });
+                }
+                if (error.name === "SequelizeValidationError") {
+                    const messages = ((_a = error.errors) === null || _a === void 0 ? void 0 : _a.map((e) => e.message)) || error.message;
+                    return res.status(400).json({ error: messages });
+                }
+                res.status(400).json({ error: error.message || "Error creating doctor" });
+            }
+        });
+    }
+    updateDoctor(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { id: pk } = req.params;
+            const { nombre, especialidad, telefono, correo, registro, status } = req.body;
+            try {
+                const body = {};
+                if (nombre !== undefined)
+                    body.nombre = nombre;
+                if (especialidad !== undefined)
+                    body.especialidad = especialidad;
+                if (telefono !== undefined)
+                    body.telefono = String(telefono);
+                if (correo !== undefined)
+                    body.correo = correo;
+                if (registro !== undefined)
+                    body.registro = registro;
+                if (status !== undefined)
+                    body.status = status;
+                const doctorExist = yield Doctor_1.Doctor.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (doctorExist) {
+                    yield doctorExist.update(body, { where: { id: pk } });
+                    res.status(200).json(doctorExist);
+                }
+                else {
+                    res.status(404).json({ error: "Doctor not found or inactive" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                if (error.name === "SequelizeUniqueConstraintError") {
+                    return res.status(409).json({ error: "Correo ya registrado" });
+                }
+                if (error.name === "SequelizeValidationError") {
+                    const messages = ((_a = error.errors) === null || _a === void 0 ? void 0 : _a.map((e) => e.message)) || error.message;
+                    return res.status(400).json({ error: messages });
+                }
+                res.status(400).json({ error: error.message || "Error updating doctor" });
+            }
+        });
+    }
+    deleteDoctor(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = req.params;
+                const doctorToDelete = yield Doctor_1.Doctor.findByPk(id);
+                if (doctorToDelete) {
+                    yield doctorToDelete.destroy();
+                    res.status(200).json({ message: "Doctor deleted successfully" });
+                }
+                else {
+                    res.status(404).json({ error: "Doctor not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error deleting doctor" });
+            }
+        });
+    }
+    deleteDoctorAdv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id: pk } = req.params;
+                const doctorToUpdate = yield Doctor_1.Doctor.findOne({
+                    where: { id: pk, status: "ACTIVATE" },
+                });
+                if (doctorToUpdate) {
+                    yield doctorToUpdate.update({ status: "INACTIVE" });
+                    res.status(200).json({ message: "Doctor marked as inactive" });
+                }
+                else {
+                    res.status(404).json({ error: "Doctor not found" });
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error marking doctor as inactive" });
             }
         });
     }

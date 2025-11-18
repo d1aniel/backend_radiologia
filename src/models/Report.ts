@@ -1,4 +1,4 @@
-// src/models/Report.ts
+
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../database/connection";
 
@@ -6,10 +6,10 @@ export type InformeEstado = "BORRADOR" | "FIRMADO";
 
 export interface ReportI {
   id?: number;
-  estudioId: number;       // -> columna estudio_id
+  estudioId: number;       
   estado: InformeEstado;
   cuerpo: string;
-  medicoId: number;        // -> columna medico_id
+  medicoId: number;        
   fechaCreacion?: Date;
 }
 
@@ -32,11 +32,11 @@ Report.init(
       primaryKey: true,
     },
 
-    // 🔹 Mapea a columna FÍSICA estudio_id (FK a studies.id)
+    
     estudioId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-      unique: true, // 1:1: un estudio -> un informe
+      unique: true, 
       field: "estudio_id",
       references: {
         model: "studies",
@@ -68,7 +68,7 @@ Report.init(
       },
     },
 
-    // 🔹 Mapea a columna FÍSICA medico_id (FK a doctors.id)
+    
     medicoId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
@@ -97,7 +97,7 @@ Report.init(
     tableName: "reports",
     timestamps: false,
     indexes: [
-      // 👇 aquí van los NOMBRES DE COLUMNA reales
+      
       { fields: ["medico_id"] },
       {
         unique: true,

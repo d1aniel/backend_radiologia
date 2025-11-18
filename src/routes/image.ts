@@ -1,4 +1,4 @@
-// src/routes/image.routes.ts
+
 import { Application } from "express";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
@@ -6,13 +6,13 @@ import fs from "fs";
 import { ImageController } from "../controllers/image.controller";
 import { authMiddleware } from "../middleware/auth";
 
-// Asegurar carpeta uploads/images
+
 const UPLOAD_DIR = path.join(process.cwd(), "uploads", "images");
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-// Configura multer: guarda en /uploads/images con nombre único
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+  limits: { fileSize: 500 * 1024 * 1024 }, 
   fileFilter: (req, file, cb: FileFilterCallback) => {
     const allowed = /\.(dcm|dicom|jpg|jpeg|png)$/i;
     if (allowed.test(file.originalname)) cb(null, true);
@@ -36,7 +36,7 @@ export class ImageRoutes {
   public imageController: ImageController = new ImageController();
 
   public routes(app: Application): void {
-    // ================== RUTAS SIN AUTENTICACIÓN ==================
+    // ================== RUTAS PÚBLICAS ==================
     app.route("/api/images/public")
       .get(this.imageController.getAllImages)
       .post(upload.single("file"), this.imageController.createImage);

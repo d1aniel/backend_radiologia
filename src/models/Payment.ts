@@ -1,4 +1,4 @@
-// src/models/payment.ts
+
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../database/connection";
 
@@ -7,15 +7,15 @@ export type EstadoPago = "PAID" | "PENDING" | "VOID";
 
 export interface PaymentI {
   id?: number;
-  pacienteId: number;          // TS: sigue igual
-  estudioId?: number | null;   // lo usaremos para quote_id
+  pacienteId: number;          
+  estudioId?: number | null;   
   monto: number;
   metodo: MetodoPago;
-  fecha: string;               // YYYY-MM-DD
-  estado: EstadoPago;          // default: 'PAID'
+  fecha: string;               
+  estado: EstadoPago;          
 }
 
-// Para creación: id es opcional
+
 type PaymentCreationAttributes = Optional<PaymentI, "id" | "estado" | "estudioId">;
 
 export class Payment
@@ -69,7 +69,7 @@ Payment.init(
       defaultValue: "EFECTIVO",
     },
     fecha: {
-      // Guarda sólo la parte de fecha (YYYY-MM-DD)
+      
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
